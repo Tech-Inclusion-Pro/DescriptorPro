@@ -283,6 +283,6 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 ---
 
 <p align="center">
-  Made with care by <a href="https://github.com/Tech-Inclusion-Pro">Tech Inclusion Pro</a><br>
+  Made with care by <a href="https://github.com/Tech-Inclusion-Pro">Rocco Catrone</a><br>
   <em>Technology for everyone.</em>
 </p>
