@@ -1243,6 +1243,93 @@ QMessageBox QPushButton:focus {{
     border: {fw} solid {fc};
 }}
 
+/* ---- Dashboard Folder Sidebar ---- */
+#folderSidebar {{
+    background-color: {t["surface"]};
+    border-right: 1px solid {t["border"]};
+    border-radius: 8px 0 0 8px;
+}}
+
+#folderItemBtn {{
+    background-color: transparent;
+    color: {t["text"]};
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    text-align: left;
+    font-size: {fs}px;
+    min-height: 36px;
+}}
+
+#folderItemBtn:hover {{
+    background-color: {t["surface_alt"]};
+}}
+
+#folderItemBtn[active="true"] {{
+    background-color: {_rgba(t["primary"], 30)};
+    color: {t["primary"]};
+    border-left: 3px solid {t["primary"]};
+    font-weight: bold;
+}}
+
+#folderItemBtn:focus {{
+    border: {fw} solid {fc};
+}}
+
+#newFolderBtn {{
+    background-color: transparent;
+    color: {t["primary"]};
+    border: 1px dashed {t["primary"]};
+    border-radius: 4px;
+    padding: 6px 12px;
+    text-align: left;
+    font-size: {fs}px;
+    min-height: 36px;
+}}
+
+#newFolderBtn:hover {{
+    background-color: {_rgba(t["primary"], 20)};
+}}
+
+#newFolderBtn:focus {{
+    border: {fw} solid {fc};
+}}
+
+/* ---- Dashboard Search Bar ---- */
+#dashboardSearchBar {{
+    background-color: {t["surface"]};
+    color: {t["text"]};
+    border: 1px solid {t["border"]};
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: {fs}px;
+}}
+
+#dashboardSearchBar:focus {{
+    border: {fw} solid {fc};
+}}
+
+/* ---- Project Folder Button ---- */
+#projectFolderBtn {{
+    background-color: {t["surface_alt"]};
+    color: {t["text_secondary"]};
+    border: 1px solid {t["border"]};
+    border-radius: 6px;
+    min-width: 120px;
+    min-height: 44px;
+    padding: 4px 16px;
+    font-size: {fs}px;
+}}
+
+#projectFolderBtn:hover {{
+    border-color: {t["primary"]};
+    color: {t["primary"]};
+}}
+
+#projectFolderBtn:focus {{
+    border: {fw} solid {fc};
+}}
+
 /* ---- Password Toggle ---- */
 #loginPasswordToggle {{
     background-color: {t["surface_alt"]};
