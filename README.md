@@ -78,34 +78,229 @@ Built with PyQt6, powered by [faster-whisper](https://github.com/SYSTRAN/faster-
 
 ## Download & Install
 
-### Option 1: macOS App (Recommended for macOS)
+> **Download the latest release:** [**github.com/Tech-Inclusion-Pro/LaMiaScibe/releases/latest**](https://github.com/Tech-Inclusion-Pro/LaMiaScibe/releases/latest)
 
-Download the latest `.app` bundle from the [Releases](https://github.com/Tech-Inclusion-Pro/LaMiaScibe/releases) page and drag it to your Applications folder.
+---
 
-### Option 2: Run from Source (All Platforms)
+### macOS
+
+<details>
+<summary><strong>Click to expand macOS instructions</strong></summary>
+
+#### Step 1 — Install FFmpeg (required, one-time)
+
+Open **Terminal** (press `Cmd + Space`, type "Terminal", press Enter) and run:
+
+```bash
+# If you have Homebrew (recommended):
+brew install ffmpeg
+
+# If you don't have Homebrew, install it first:
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install ffmpeg
+```
+
+#### Step 2 — Download La Mia Scribe
+
+1. Go to the [**Releases page**](https://github.com/Tech-Inclusion-Pro/LaMiaScibe/releases/latest)
+2. Download **`LaMiaScribe-macOS.zip`**
+3. Open your **Downloads** folder and double-click the `.zip` file to unzip it
+4. Drag **"La Mia Scribe.app"** into your **Applications** folder
+
+#### Step 3 — Open the app
+
+Because the app is not from the Mac App Store, macOS will block it the first time:
+
+1. Open **Applications** in Finder
+2. **Right-click** (or Control+click) on **La Mia Scribe** and select **Open**
+3. Click **Open** in the dialog that appears
+4. You only need to do this once — after that it opens normally
+
+#### Step 4 — Optional: Install Ollama for AI features
+
+```bash
+# Download and install from:
+# https://ollama.ai
+
+# Then pull a model:
+ollama pull llama3
+
+# Ollama runs automatically — La Mia Scribe will detect it
+```
+
+</details>
+
+---
+
+### Windows
+
+<details>
+<summary><strong>Click to expand Windows instructions</strong></summary>
+
+#### Step 1 — Install FFmpeg (required, one-time)
+
+**Option A — Using winget (Windows 10/11):**
+Open **PowerShell** or **Command Prompt** and run:
+```
+winget install FFmpeg
+```
+
+**Option B — Using Chocolatey:**
+```
+choco install ffmpeg
+```
+
+**Option C — Manual install:**
+1. Go to [https://www.gyan.dev/ffmpeg/builds/](https://www.gyan.dev/ffmpeg/builds/)
+2. Download **ffmpeg-release-essentials.zip**
+3. Extract the zip to `C:\ffmpeg`
+4. Add `C:\ffmpeg\bin` to your system PATH:
+   - Press `Win + R`, type `sysdm.cpl`, press Enter
+   - Click **Advanced** → **Environment Variables**
+   - Under **System variables**, find **Path**, click **Edit**
+   - Click **New** and add `C:\ffmpeg\bin`
+   - Click **OK** on all dialogs
+5. Open a new Command Prompt and type `ffmpeg -version` to verify
+
+#### Step 2 — Download La Mia Scribe
+
+1. Go to the [**Releases page**](https://github.com/Tech-Inclusion-Pro/LaMiaScibe/releases/latest)
+2. Download **`LaMiaScribe-Windows.zip`**
+3. Right-click the zip → **Extract All** → choose a location (e.g., Desktop or Documents)
+4. Open the extracted folder
+
+#### Step 3 — Run the app
+
+1. Double-click **`LaMiaScribe.exe`**
+2. If Windows Defender SmartScreen appears:
+   - Click **More info**
+   - Click **Run anyway**
+3. The app will launch — sign in or create an account to get started
+
+#### Step 4 — Optional: Install Ollama for AI features
+
+1. Download Ollama from [https://ollama.ai](https://ollama.ai)
+2. Run the installer
+3. Open **Command Prompt** and run:
+```
+ollama pull llama3
+```
+4. La Mia Scribe will automatically detect Ollama
+
+</details>
+
+---
+
+### Linux (Ubuntu/Debian/Fedora)
+
+<details>
+<summary><strong>Click to expand Linux instructions</strong></summary>
+
+#### Step 1 — Install FFmpeg (required, one-time)
+
+```bash
+# Ubuntu / Debian
+sudo apt update && sudo apt install ffmpeg
+
+# Fedora
+sudo dnf install ffmpeg
+
+# Arch
+sudo pacman -S ffmpeg
+```
+
+#### Step 2 — Download La Mia Scribe
+
+1. Go to the [**Releases page**](https://github.com/Tech-Inclusion-Pro/LaMiaScibe/releases/latest)
+2. Download **`LaMiaScribe-Linux.tar.gz`**
+3. Extract and run:
+
+```bash
+# Extract
+tar -xzf LaMiaScribe-Linux.tar.gz
+
+# Make executable
+chmod +x LaMiaScribe
+
+# Run
+./LaMiaScribe
+```
+
+#### Optional: Add to your Applications menu
+
+```bash
+# Move to /opt
+sudo mv LaMiaScribe /opt/LaMiaScribe
+
+# Create a desktop shortcut
+cat > ~/.local/share/applications/lamiascribe.desktop << 'EOF'
+[Desktop Entry]
+Name=La Mia Scribe
+Comment=Local AI Transcription & Caption Studio
+Exec=/opt/LaMiaScribe
+Type=Application
+Categories=AudioVideo;Audio;Utility;
+EOF
+```
+
+#### Step 3 — Optional: Install Ollama for AI features
+
+```bash
+curl -fsSL https://ollama.ai/install.sh | sh
+ollama pull llama3
+```
+
+</details>
+
+---
+
+### Run from Source (All Platforms — for Developers)
+
+<details>
+<summary><strong>Click to expand developer instructions</strong></summary>
+
+If you prefer to run from source or want to contribute:
 
 #### Prerequisites
-
 - **Python 3.10+** — [Download Python](https://www.python.org/downloads/)
-- **FFmpeg** — Required for audio extraction
-  - macOS: `brew install ffmpeg`
-  - Windows: `choco install ffmpeg` or [download from ffmpeg.org](https://ffmpeg.org/download.html)
-  - Linux: `sudo apt install ffmpeg`
-- **Ollama** (optional) — For AI post-processing: [ollama.ai](https://ollama.ai)
+- **FFmpeg** — See platform-specific instructions above
+- **Ollama** (optional) — [ollama.ai](https://ollama.ai)
 
 #### Steps
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/Tech-Inclusion-Pro/LaMiaScibe.git
 cd LaMiaScibe
 
-# Install dependencies
+# 2. Create a virtual environment (recommended)
+python -m venv venv
+
+# Activate it:
+# macOS/Linux:
+source venv/bin/activate
+# Windows:
+venv\Scripts\activate
+
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# Run the app
+# 4. Run the app
 python main.py
 ```
+
+#### Build from Source
+
+To create a standalone executable for your platform:
+
+```bash
+pip install pyinstaller
+pyinstaller LaMiaScribe.spec --noconfirm
+```
+
+The built app will be in the `dist/` folder.
+
+</details>
 
 ---
 

@@ -1,0 +1,140 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build macOS app
+        run: pyinstaller LaMiaScribe.spec --noconfirm
+
+      - name: Zip macOS app
+        run: |
+          cd dist
+          zip -r ../LaMiaScribe-macOS.zip "La Mia Scribe.app"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: LaMiaScribe-macOS.zip
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build Windows exe
+        run: pyinstaller LaMiaScribe.spec --noconfirm
+
+      - name: Zip Windows build
+        run: Compress-Archive -Path dist\LaMiaScribe.exe -DestinationPath LaMiaScribe-Windows.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: LaMiaScribe-Windows.zip
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxcb-xinerama0 libxkbcommon-x11-0 libegl1 libgl1
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build Linux binary
+        run: pyinstaller LaMiaScribe.spec --noconfirm
+
+      - name: Create tarball
+        run: |
+          cd dist
+          tar -czf ../LaMiaScribe-Linux.tar.gz LaMiaScribe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: LaMiaScribe-Linux.tar.gz
+
+  release:
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            artifacts/macos-build/LaMiaScribe-macOS.zip
+            artifacts/windows-build/LaMiaScribe-Windows.zip
+            artifacts/linux-build/LaMiaScribe-Linux.tar.gz
+          body: |
+            ## La Mia Scribe ${{ github.ref_name }}
+
+            **Local AI Transcription & Caption Studio**
+
+            ### Downloads
+            | Platform | File | Instructions |
+            |----------|------|--------------|
+            | **macOS** | `LaMiaScribe-macOS.zip` | Unzip → drag to Applications → right-click → Open |
+            | **Windows** | `LaMiaScribe-Windows.zip` | Unzip → run `LaMiaScribe.exe` |
+            | **Linux** | `LaMiaScribe-Linux.tar.gz` | Extract → run `./LaMiaScribe` |
+
+            ### Prerequisites (all platforms)
+            - **FFmpeg** must be installed for audio extraction
+            - **Ollama** (optional) for AI post-processing — [ollama.ai](https://ollama.ai)
+
+            See the [README](https://github.com/Tech-Inclusion-Pro/LaMiaScibe#download--install) for detailed step-by-step instructions.
