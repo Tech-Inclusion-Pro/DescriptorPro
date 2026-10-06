@@ -161,23 +161,28 @@ body { font-size: 1rem; }
 h1, h2, h3 { text-wrap: balance; letter-spacing: normal; }
 
 .appbar {
-  background: linear-gradient(118deg, var(--brand-1) 0%, var(--brand-2) 52%, var(--brand-3) 100%);
-  color: var(--on-brand);
-  padding-block: 1.25rem;
-  border-block-end: 6px solid var(--brand-1);
+  background: rgba(5, 4, 15, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--ink);
+  padding-block: .65rem;
+  border-block-end: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 50;
 }
-html[data-palette="hc"] .appbar { background: var(--bg); border: 3px solid var(--accent); }
+.appbar__logo { inline-size: 34px; block-size: 34px; flex: none; }
+html[data-palette="hc"] .appbar { background: var(--bg); border-block-end: 3px solid var(--accent); }
+html[data-palette="mono"] .appbar { background: rgba(11, 11, 11, 0.9); }
 .appbar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.5rem; }
-.appbar__name { margin: 0; font-size: 1.6rem; line-height: 1.2; }
-.appbar__tag { margin: 0; font-size: .95rem; }
+.appbar__name { margin: 0; font-size: 1.05rem; line-height: 1.2; letter-spacing: .02em; }
+.appbar__tag { margin: 0; font-size: .85rem; color: var(--ink-soft); }
 .appbar__id { flex: 1 1 16rem; min-width: 0; }
 .chips { display: flex; flex-wrap: wrap; gap: .5rem; list-style: none; margin: 0; padding: 0; }
 .chips li { margin: 0; }
 .chip {
   display: inline-flex; align-items: center; gap: .4rem;
-  background: var(--bg); color: var(--ink);
-  border: 2px solid var(--line); border-radius: 999px;
-  padding: .25rem .8rem; font-size: .85rem; font-weight: bold;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--r-ctrl);
+  padding: .25rem .7rem; font-size: .85rem; font-weight: bold;
 }
 html[data-palette="hc"] .chip { color: var(--accent); border-color: var(--accent); }
 
@@ -204,8 +209,8 @@ html[data-palette="hc"] .chip { color: var(--accent); border-color: var(--accent
   font: inherit; font-weight: bold; font-size: .95rem; cursor: pointer;
   transition: background var(--dur), border-color var(--dur);
 }
-.step:hover { background: var(--surface); border-color: var(--brand-2); }
-.step[aria-selected="true"] { background: var(--brand-1); color: var(--on-brand); border-color: var(--brand-1); }
+.step:hover { background: var(--surface); border-color: var(--line-hover); }
+.step[aria-selected="true"] { background: linear-gradient(120deg, var(--brand-1), var(--brand-2)); color: var(--on-brand); border-color: transparent; }
 html[data-palette="hc"] .step[aria-selected="true"] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 .step__n {
   flex: none; width: 1.75rem; height: 1.75rem; display: grid; place-items: center;
@@ -213,7 +218,7 @@ html[data-palette="hc"] .step[aria-selected="true"] { background: var(--accent);
 }
 .step__state { display: block; font-size: .78rem; font-weight: normal; }
 
-.pane { background: var(--tile); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; margin-block-end: 2rem; }
+.pane { background: var(--tile); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; margin-block-end: 2rem; box-shadow: 0 20px 40px -34px #000; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .pane > h2 { margin: 0 0 .35rem; font-size: 1.45rem; line-height: 1.25; color: var(--brand-text-1); }
 html[data-palette="hc"] .pane > h2, html[data-palette="hc"] .pane h3 { color: var(--accent); }
 .pane h3 { margin: 1.5rem 0 .5rem; font-size: 1.1rem; color: var(--brand-text-1); }
@@ -222,7 +227,8 @@ html[data-palette="hc"] .lede { color: var(--ink); }
 
 .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1.25rem; }
 .cols > * { min-width: 0; }
-.box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; transition: border-color var(--dur); }
+.box:hover { border-color: var(--line-hover); }
 .box h3 { margin-block-start: 0; }
 .box p:last-child, .box ul:last-child { margin-block-end: 0; }
 .box ul { padding-inline-start: 1.2rem; }
@@ -236,14 +242,19 @@ html[data-palette="hc"] .lede { color: var(--ink); }
 .drop p { margin: 0; }
 
 .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
   min-height: 44px; padding: .55rem 1.1rem;
-  background: var(--brand-1); color: var(--on-brand);
-  border: 2px solid var(--brand-1); border-radius: 8px;
+  background: linear-gradient(120deg, var(--brand-3), var(--brand-2));
+  color: var(--on-brand);
+  border: 2px solid transparent; border-radius: var(--r-ctrl);
   font: inherit; font-weight: bold; cursor: pointer;
+  transition: filter var(--dur), background-color var(--dur), border-color var(--dur);
 }
-.btn:hover { background: var(--brand-2); border-color: var(--brand-2); }
-.btn--quiet { background: var(--surface); color: var(--brand-text-1); }
-.btn--quiet:hover { background: var(--tile); color: var(--brand-text-1); }
+.btn:hover { filter: brightness(1.1); }
+.btn:disabled { opacity: .5; cursor: not-allowed; filter: none; }
+.btn--quiet { background: var(--surface); color: var(--ink); border-color: var(--line); }
+.btn--quiet:hover { filter: none; border-color: #b3a8de; }
+html[data-palette="mono"] .btn--quiet:hover { border-color: var(--line-hover); }
 html[data-palette="hc"] .btn { background: var(--bg); color: var(--accent); border-color: var(--accent); }
 html[data-palette="hc"] .btn:hover { background: var(--accent); color: var(--bg); }
 .row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
@@ -332,11 +343,13 @@ html[data-palette="hc"] .foot { color: var(--ink); }
 .mode {
   min-height: 48px; padding: .5rem 1rem; text-align: start;
   background: var(--tile); color: var(--ink);
-  border: 2px solid var(--line); border-radius: 999px;
+  border: 1px solid var(--line); border-radius: var(--r-ctrl);
   font: inherit; font-weight: bold; cursor: pointer;
+  transition: border-color var(--dur);
 }
+.mode:hover { border-color: var(--line-hover); }
 .mode small { display: block; font-weight: normal; font-size: .8rem; }
-.mode[aria-pressed="true"] { background: var(--brand-3); color: var(--on-brand); border-color: var(--brand-3); }
+.mode[aria-pressed="true"] { background: linear-gradient(120deg, var(--brand-3), var(--brand-2)); color: var(--on-brand); border-color: transparent; }
 html[data-palette="hc"] .mode[aria-pressed="true"] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 
 /* --- Live --------------------------------------------------------------- */

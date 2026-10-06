@@ -42,8 +42,93 @@ async def noop_job(ctx, model_manager) -> dict:
     return {"steps": steps, "ran": completed, "skipped": steps - completed}
 
 
+async def transcribe_job(ctx, model_manager) -> dict:
+    """Captions pipeline, first slice: extract audio -> whisper with word
+    timestamps -> CaptionCue list saved into project.json. Each stage writes
+    its output to the project folder and is skipped when it already exists.
+    """
+    import json
+    from service.projects import ProjectStore
+    from service.settings_store import library_dir, load_settings
+
+    store = ProjectStore(library_dir())
+    try:
+        project = store.load(ctx.job.project_id)
+        if project is None:
+            raise ValueError("Project not found.")
+
+        source = project["source"]["path"]
+        model_size = str(ctx.job.params.get("model") or load_settings()["whisper_model"])
+        language = ctx.job.params.get("language") or None
+
+        # Stage 1: extract 16 kHz mono WAV
+        ctx.stage("extract-audio")
+        wav_path = ctx.project_folder / "audio" / "extracted.wav"
+        if wav_path.exists():
+            ctx.status("Audio already extracted. Skipping.")
+        else:
+            ctx.status("Extracting audio with FFmpeg...")
+            import asyncio
+            import shutil
+
+            from core.engine.extract_audio import extract_audio
+
+            tmp = await asyncio.to_thread(extract_audio, source)
+            ctx.cancel.raise_if_cancelled()
+            shutil.move(tmp, wav_path)
+        ctx.percent(100)
+
+        # Stage 2: speech to caption cues
+        ctx.stage("transcribe")
+        transcript_path = ctx.project_folder / "audio" / "captions.json"
+        if transcript_path.exists():
+            ctx.status("Captions already drafted. Loading saved result.")
+            result = json.loads(transcript_path.read_text())
+        else:
+            import asyncio
+
+            from core.engine.captions import transcribe_to_cues
+
+            async with model_manager.use("whisper", model_size):
+                result = await asyncio.to_thread(
+                    transcribe_to_cues,
+                    str(wav_path),
+                    model_size,
+                    language,
+                    progress=ctx,
+                    cancel=ctx.cancel,
+                )
+            transcript_path.write_text(json.dumps(result, ensure_ascii=False, indent=2))
+
+        # Stage 3: save cues + provenance into the project
+        ctx.stage("save")
+        project["caption_cues"] = result["cues"]
+        project["source"]["duration"] = result["duration"]
+        project["status"] = "captions_drafted"
+        prov = project.setdefault("provenance", {})
+        prov.setdefault("models", []).append(
+            {"role": "asr", "name": result["model"], "location": "local"}
+        )
+        prov["captions"] = {
+            "drafted_by": "model",
+            "cues": len(result["cues"]),
+            "approved": 0,
+            "flagged_open": sum(1 for c in result["cues"] if c["flags"]),
+            "style": "verbatim",
+        }
+        prov["cloud_services_used"] = []
+        prov["status"] = "draft_not_reviewed"
+        store.save(project)
+        ctx.percent(100)
+        ctx.status(f"Done: {len(result['cues'])} caption cues drafted.")
+        return {"cues": len(result["cues"]), "language": result["language"]}
+    finally:
+        store.close()
+
+
 _HANDLERS: dict[str, JobHandler] = {
     "noop": noop_job,
+    "transcribe": transcribe_job,
 }
 
 

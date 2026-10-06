@@ -15,7 +15,9 @@ from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 OPEN_PATHS = {"/health"}
-OPEN_PREFIXES = ("/ui",)
+# /media validates the token itself (query param — <video src> cannot send
+# an Authorization header). /ui is the same-origin static bundle.
+OPEN_PREFIXES = ("/ui", "/media")
 
 
 def new_token() -> str:

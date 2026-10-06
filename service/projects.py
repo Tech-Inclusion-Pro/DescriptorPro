@@ -116,6 +116,39 @@ class ProjectStore:
         self.save(project)
         return project
 
+    def create_from_upload(self, title: str, filename: str, data: bytes, outputs: dict) -> dict:
+        """Create a project whose media is an uploaded copy (the UI path:
+        browsers and Electron renderers send bytes, never filesystem paths)."""
+        project_id = str(uuid.uuid4())
+        folder = self.library / project_id
+        for sub in SUBDIRS:
+            (folder / sub).mkdir(parents=True, exist_ok=True)
+
+        safe_name = Path(filename).name or "media"
+        media_path = folder / "media" / safe_name
+        media_path.write_bytes(data)
+
+        project = {
+            "schema": 1,
+            "id": project_id,
+            "title": title or Path(safe_name).stem,
+            "source": {
+                "path": str(media_path),
+                "kind": _kind_for(media_path),
+                "sha256": hashlib.sha256(data).hexdigest(),
+            },
+            "outputs": outputs,
+            "status": "new",
+            "created": _now_iso(),
+            "segments": [],
+            "caption_cues": [],
+            "description_cues": [],
+            "images": [],
+            "provenance": {},
+        }
+        self.save(project)
+        return project
+
     def folder(self, project_id: str) -> Path:
         return self.library / project_id
 

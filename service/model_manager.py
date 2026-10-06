@@ -51,6 +51,9 @@ class ModelManager:
         self._loaders: dict[str, Callable[[str], ModelHandle]] = {
             "fake": _fake_loader,
             "ollama": ollama_loader,
+            # faster-whisper loads inside the engine call; the handle only
+            # serializes access so no other model is resident at the same time.
+            "whisper": lambda name: ModelHandle(role="whisper", name=name, instance=None),
         }
 
     def register_loader(self, role: str, loader: Callable[[str], ModelHandle]) -> None:

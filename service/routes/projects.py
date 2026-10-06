@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from service.projects import ProjectStore, sha256_file
@@ -32,6 +32,62 @@ def create_project(body: CreateProject) -> dict:
     finally:
         store.close()
     return project
+
+
+@router.post("/projects/upload")
+async def upload_project(request: Request) -> dict:
+    """Multipart create: fields `file` (the media), `title`, `outputs` (JSON)."""
+    import json as json_mod
+
+    form = await request.form()
+    upload = form.get("file")
+    if upload is None or isinstance(upload, str):
+        raise HTTPException(status_code=400, detail="No file in the upload.")
+    try:
+        outputs = json_mod.loads(str(form.get("outputs") or "{}"))
+    except json_mod.JSONDecodeError:
+        outputs = {}
+
+    data = await upload.read()
+    if not data:
+        raise HTTPException(status_code=400, detail="The uploaded file is empty.")
+
+    store = _store()
+    try:
+        return store.create_from_upload(
+            str(form.get("title") or ""), upload.filename or "media", data, outputs
+        )
+    finally:
+        store.close()
+
+
+media_router = APIRouter()
+
+
+@media_router.get("/media/{project_id}")
+def stream_media(project_id: str, token: str, request: Request):
+    """Media playback for the review editor. Token comes as a query param
+    because media elements cannot send headers; checked in constant time."""
+    from pathlib import Path
+
+    from fastapi.responses import FileResponse
+
+    from service.auth import check_ws_token
+
+    if not check_ws_token(token, request.app.state.token):
+        raise HTTPException(status_code=401, detail="Missing or invalid service token.")
+
+    store = _store()
+    try:
+        project = store.load(project_id)
+    finally:
+        store.close()
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found.")
+    media = Path(project["source"]["path"])
+    if not media.is_file():
+        raise HTTPException(status_code=404, detail="Media file is missing.")
+    return FileResponse(media)
 
 
 @router.get("/projects")

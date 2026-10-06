@@ -62,12 +62,17 @@ def create_app(token: str, dev: bool = False) -> FastAPI:
         app.state.shutdown_event.set()
         return {"stopping": True}
 
+    from service.routes.captions import router as captions_router
     from service.routes.jobs import router as jobs_router
+    from service.routes.projects import media_router
     from service.routes.projects import router as projects_router
     from service.routes.settings import router as settings_router
 
+    app.include_router(media_router)
+
     app.include_router(projects_router, prefix="/api")
     app.include_router(jobs_router, prefix="/api")
+    app.include_router(captions_router, prefix="/api")
     app.include_router(settings_router, prefix="/api")
 
     from service.ws import register_ws
