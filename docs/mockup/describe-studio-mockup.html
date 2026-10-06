@@ -1,0 +1,1662 @@
+<title>Describe Studio Mockup</title>
+<style>
+@font-face {
+  font-family: 'OpenDyslexicLocal';
+  src: url('OpenDyslexic-Regular.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexicLocal';
+  src: url('OpenDyslexic-Bold.woff2') format('woff2');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+
+/* --- Palettes ---------------------------------------------------------- */
+:root {
+  --bg:        #ffffff;
+  --surface:   #f7f5fb;
+  --ink:       #1c1a2e;
+  --ink-soft:  #46425f;
+  --line:      #d8d3e6;
+
+  --brand-1:   #3a2b95;
+  --brand-2:   #6f2fa6;
+  --brand-3:   #a23b84;
+  --on-brand:  #ffffff;
+
+  --accent:    #6f2fa6;
+  --focus:     #1c1a2e;
+  --focus-alt: #ffffff;
+
+  --ok:        #145c34;
+  --no:        #8f1d24;
+
+  --radius: 10px;
+  --dur: 200ms;
+  --fs: 1;
+  --lh: 1.6;
+  --ls: normal;
+  --ws: normal;
+  --para: 1em;
+}
+
+html[data-palette="cvd"] {
+  --brand-1: #00456e;
+  --brand-2: #1b6ea8;
+  --brand-3: #8a3d00;
+  --accent:  #00456e;
+  --surface: #f2f6f9;
+  --line:    #c9d7e2;
+  --ok:      #00456e;
+  --no:      #8a3d00;
+}
+
+html[data-palette="mono"] {
+  --brand-1: #1f1f1f;
+  --brand-2: #3d3d3d;
+  --brand-3: #565656;
+  --accent:  #1f1f1f;
+  --ink:     #141414;
+  --ink-soft:#3d3d3d;
+  --surface: #f3f3f3;
+  --line:    #c9c9c9;
+  --ok:      #141414;
+  --no:      #141414;
+}
+
+html[data-palette="hc"] {
+  --bg:       #000000;
+  --surface:  #0d0d0d;
+  --ink:      #ffffff;
+  --ink-soft: #f2f2f2;
+  --line:     #ffffff;
+  --brand-1:  #000000;
+  --brand-2:  #000000;
+  --brand-3:  #000000;
+  --on-brand: #ffe500;
+  --accent:   #ffe500;
+  --focus:    #ffe500;
+  --focus-alt:#000000;
+  --ok:       #ffe500;
+  --no:       #ffe500;
+}
+
+html[data-textsize="1"] { --fs: 1.15; }
+html[data-textsize="2"] { --fs: 1.30; }
+html[data-textsize="3"] { --fs: 1.50; }
+
+html[data-spacing="1"] { --lh: 1.7;  --ls: 0.06em; --ws: 0.10em; --para: 1.6em; }
+html[data-spacing="2"] { --lh: 1.85; --ls: 0.12em; --ws: 0.16em; --para: 2em;   }
+
+html[data-motion="slow"] { --dur: 900ms; }
+html[data-motion="none"] { --dur: 1ms; }
+@media (prefers-reduced-motion: reduce) {
+  html[data-motion="auto"] { --dur: 1ms; }
+}
+
+/* --- Base -------------------------------------------------------------- */
+* { box-sizing: border-box; }
+
+html { font-size: calc(100% * var(--fs)); background: var(--bg); }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Arial, Helvetica, "Liberation Sans", sans-serif;
+  line-height: var(--lh);
+  letter-spacing: var(--ls);
+  word-spacing: var(--ws);
+  -webkit-text-size-adjust: 100%;
+}
+
+html[data-dyslexic="on"] body,
+html[data-dyslexic="on"] button,
+html[data-dyslexic="on"] select,
+html[data-dyslexic="on"] input,
+html[data-dyslexic="on"] textarea,
+html[data-dyslexic="on"] summary {
+  font-family: 'OpenDyslexicLocal', 'OpenDyslexic', 'Comic Sans MS', Verdana, Tahoma, Arial, sans-serif;
+}
+
+p, li { margin-block-end: var(--para); }
+
+a { color: var(--brand-1); }
+html[data-palette="hc"] a { color: var(--accent); }
+a:hover { text-decoration-thickness: 3px; }
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+html[data-palette="hc"] :focus-visible { outline-color: var(--accent); }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+.skip {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--brand-1); color: var(--on-brand);
+  padding: .75rem 1.25rem; z-index: 100;
+  font-weight: bold; text-decoration: underline;
+}
+.skip:focus { left: 0; }
+
+/* =========================================================================
+   ACCESSIBILITY WIDGET
+   ========================================================================= */
+#a11yHost { min-height: 0; }
+
+.a11y {
+  position: fixed;
+  inset-block-end: 1rem;
+  inset-inline-end: 1rem;
+  z-index: 90;
+  display: flex; flex-direction: column; align-items: flex-end; gap: .6rem;
+}
+
+/* Docked state: the widget lives in the page flow instead of floating.
+   Used when the page is inside an auto-height iframe, where a fixed
+   element pins to the bottom of the whole document and is never visible. */
+.a11y[data-docked="yes"] {
+  position: static;
+  align-items: flex-start;
+  margin: 0 0 1.5rem;
+}
+.a11y[data-docked="yes"] .panel { position: relative; }
+
+.fab {
+  display: inline-flex; align-items: center; gap: .5rem;
+  min-height: 48px; min-width: 48px;
+  padding: .7rem 1.05rem;
+  background: var(--brand-1); color: var(--on-brand);
+  border: 3px solid var(--on-brand);
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.32);
+  font: inherit; font-weight: bold; font-size: .95rem;
+  letter-spacing: normal; cursor: pointer; touch-action: none;
+}
+html[data-palette="hc"] .fab { background: var(--bg); color: var(--accent); border-color: var(--accent); }
+.fab:hover { background: var(--brand-2); }
+html[data-palette="hc"] .fab:hover { background: var(--accent); color: var(--bg); }
+.fab__icon { flex: none; }
+
+.panel {
+  width: min(21.5rem, calc(100vw - 2rem));
+  max-height: min(30rem, calc(100vh - 7rem));
+  overflow-y: auto;
+  background: var(--bg); color: var(--ink);
+  border: 3px solid var(--brand-1);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(0,0,0,.28);
+  padding: 0 1rem 1rem;
+}
+html[data-palette="hc"] .panel { border-color: var(--accent); }
+.panel[hidden] { display: none; }
+
+.panel__bar {
+  position: sticky; top: 0;
+  display: flex; align-items: center; gap: .5rem;
+  margin: 0 -1rem 0; padding: .6rem 1rem;
+  background: var(--brand-1); color: var(--on-brand);
+}
+html[data-palette="hc"] .panel__bar { background: var(--bg); color: var(--accent); border-block-end: 2px solid var(--accent); }
+
+.panel__title { margin: 0; font-size: 1rem; flex: 1; letter-spacing: normal; color: inherit; }
+
+.grip {
+  min-width: 44px; min-height: 44px;
+  display: grid; place-items: center;
+  background: transparent; color: inherit;
+  border: 2px solid currentColor; border-radius: 6px;
+  cursor: grab; font: inherit; touch-action: none;
+}
+.grip:active { cursor: grabbing; }
+
+.panel__close {
+  min-width: 44px; min-height: 44px;
+  background: transparent; color: inherit;
+  border: 2px solid currentColor; border-radius: 6px;
+  font: inherit; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+}
+.panel__close:hover, .grip:hover { background: rgba(255,255,255,.18); }
+
+.panel fieldset { border: 0; border-block-start: 1px solid var(--line); margin: 0; padding: 1rem 0 .25rem; }
+.panel legend {
+  padding: 0; margin: 0 0 .5rem;
+  font-weight: bold; font-size: .95rem;
+  color: var(--brand-1); letter-spacing: normal;
+}
+html[data-palette="hc"] .panel legend { color: var(--accent); }
+
+.opt {
+  display: flex; align-items: flex-start; gap: .6rem;
+  min-height: 44px; padding: .35rem .4rem;
+  border-radius: 6px; cursor: pointer; line-height: 1.35;
+}
+.opt:hover { background: var(--surface); }
+.opt input { flex: none; width: 1.25rem; height: 1.25rem; margin-top: .1rem; accent-color: var(--brand-2); cursor: pointer; }
+html[data-palette="hc"] .opt input { accent-color: var(--accent); }
+.opt span { font-size: .95rem; }
+.opt small { display: block; color: var(--ink-soft); font-size: .82rem; }
+html[data-palette="hc"] .opt small { color: var(--ink); }
+
+.hint { font-size: .82rem; color: var(--ink-soft); margin: .1rem 0 .6rem; }
+html[data-palette="hc"] .hint { color: var(--ink); }
+
+.reset {
+  width: 100%; min-height: 48px; margin-top: 1rem;
+  background: var(--brand-3); color: var(--on-brand);
+  border: 3px solid transparent; border-radius: 8px;
+  font: inherit; font-weight: bold; cursor: pointer;
+}
+html[data-palette="hc"] .reset { background: var(--bg); color: var(--accent); border-color: var(--accent); }
+.reset:hover { background: var(--brand-1); }
+
+.a11y[data-corner="br"] { inset-block-end: 1rem; inset-block-start: auto; inset-inline-end: 1rem; inset-inline-start: auto; align-items: flex-end; flex-direction: column; }
+.a11y[data-corner="bl"] { inset-block-end: 1rem; inset-block-start: auto; inset-inline-start: 1rem; inset-inline-end: auto; align-items: flex-start; flex-direction: column; }
+.a11y[data-corner="tr"] { inset-block-start: 1rem; inset-block-end: auto; inset-inline-end: 1rem; inset-inline-start: auto; align-items: flex-end; flex-direction: column-reverse; }
+.a11y[data-corner="tl"] { inset-block-start: 1rem; inset-block-end: auto; inset-inline-start: 1rem; inset-inline-end: auto; align-items: flex-start; flex-direction: column-reverse; }
+.a11y[data-docked="yes"][data-corner] { inset: auto; }
+
+.trail-dot {
+  position: fixed; top: 0; left: 0;
+  width: 14px; height: 14px; margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--brand-3); border: 2px solid var(--bg);
+  pointer-events: none; z-index: 80;
+}
+html[data-palette="hc"] .trail-dot { background: var(--accent); border-color: #000; }
+
+html[data-cursor="large"] body {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 32 32'%3E%3Cpath d='M5 2 L5 25 L11 19 L15 29 L19 27 L15 18 L24 18 Z' fill='%23ffffff' stroke='%23000000' stroke-width='2.2' stroke-linejoin='round'/%3E%3C/svg%3E") 6 3, auto;
+}
+html[data-cursor="large"] a, html[data-cursor="large"] button, html[data-cursor="large"] label, html[data-cursor="large"] input, html[data-cursor="large"] textarea, html[data-cursor="large"] summary {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 32 32'%3E%3Cpath d='M13 30 L13 20 L10 20 C7 20 7 16 10 16 L13 16 L13 5 C13 2 17 2 17 5 L17 13 L19 13 L19 6 C19 3 23 3 23 6 L23 13 L25 13 L25 8 C25 5 29 5 29 8 L29 24 C29 28 26 30 23 30 Z' fill='%23ffffff' stroke='%23000000' stroke-width='2.2' stroke-linejoin='round'/%3E%3C/svg%3E") 19 3, pointer;
+}
+html[data-cursor="xlarge"] body {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 32 32'%3E%3Cpath d='M5 2 L5 25 L11 19 L15 29 L19 27 L15 18 L24 18 Z' fill='%23ffffff' stroke='%23000000' stroke-width='2.2' stroke-linejoin='round'/%3E%3C/svg%3E") 9 4, auto;
+}
+html[data-cursor="xlarge"] a, html[data-cursor="xlarge"] button, html[data-cursor="xlarge"] label, html[data-cursor="xlarge"] input, html[data-cursor="xlarge"] textarea, html[data-cursor="xlarge"] summary {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 32 32'%3E%3Cpath d='M13 30 L13 20 L10 20 C7 20 7 16 10 16 L13 16 L13 5 C13 2 17 2 17 5 L17 13 L19 13 L19 6 C19 3 23 3 23 6 L23 13 L25 13 L25 8 C25 5 29 5 29 8 L29 24 C29 28 26 30 23 30 Z' fill='%23ffffff' stroke='%23000000' stroke-width='2.2' stroke-linejoin='round'/%3E%3C/svg%3E") 26 4, pointer;
+}
+html[data-cursor="contrast"] body {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 32 32'%3E%3Cpath d='M5 2 L5 25 L11 19 L15 29 L19 27 L15 18 L24 18 Z' fill='%23ffe500' stroke='%23000000' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E") 8 3, auto;
+}
+html[data-cursor="contrast"] a, html[data-cursor="contrast"] button, html[data-cursor="contrast"] label, html[data-cursor="contrast"] input, html[data-cursor="contrast"] textarea, html[data-cursor="contrast"] summary {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 32 32'%3E%3Cpath d='M13 30 L13 20 L10 20 C7 20 7 16 10 16 L13 16 L13 5 C13 2 17 2 17 5 L17 13 L19 13 L19 6 C19 3 23 3 23 6 L23 13 L25 13 L25 8 C25 5 29 5 29 8 L29 24 C29 28 26 30 23 30 Z' fill='%23ffe500' stroke='%23000000' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E") 22 3, pointer;
+}
+
+@media (forced-colors: active) {
+  .panel, .fab, .card, .sort__item, .callout, .sub, .pace > li, .answerline { border: 2px solid CanvasText; }
+  .grip, .panel__close { border: 2px solid CanvasText; }
+}
+
+/* =========================================================================
+   DESCRIBE STUDIO MOCKUP (working name)
+   Layout: app bar, five-step tab strip, one working panel per step.
+   Colors come from the palette tokens above so every display setting
+   (color-vision friendly, monochrome, high contrast) restyles the whole app.
+   ========================================================================= */
+body { font-size: 1rem; }
+.wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.25rem; }
+h1, h2, h3 { text-wrap: balance; letter-spacing: normal; }
+
+.appbar {
+  background: linear-gradient(118deg, var(--brand-1) 0%, var(--brand-2) 52%, var(--brand-3) 100%);
+  color: var(--on-brand);
+  padding-block: 1.25rem;
+  border-block-end: 6px solid var(--brand-1);
+}
+html[data-palette="hc"] .appbar { background: var(--bg); border: 3px solid var(--accent); }
+.appbar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.5rem; }
+.appbar__name { margin: 0; font-size: 1.6rem; line-height: 1.2; }
+.appbar__tag { margin: 0; font-size: .95rem; }
+.appbar__id { flex: 1 1 16rem; min-width: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; list-style: none; margin: 0; padding: 0; }
+.chips li { margin: 0; }
+.chip {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: var(--bg); color: var(--brand-1);
+  border: 2px solid var(--bg); border-radius: 999px;
+  padding: .25rem .8rem; font-size: .85rem; font-weight: bold;
+}
+html[data-palette="hc"] .chip { color: var(--accent); border-color: var(--accent); }
+
+.example {
+  margin-block: 1.25rem 0; padding: .75rem 1rem;
+  background: var(--surface); border: 2px dashed var(--brand-2); border-radius: var(--radius);
+  font-size: .95rem;
+}
+.example p { margin: 0; }
+
+.project { display: flex; flex-wrap: wrap; gap: .5rem 2rem; margin-block: 1.25rem; padding: 0; }
+.project div { min-width: 0; }
+.project dt { font-size: .82rem; font-weight: bold; color: var(--ink-soft); }
+.project dd { margin: 0; font-weight: bold; }
+
+/* --- Step tabs ---------------------------------------------------------- */
+.steps { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: 0 1.25rem; }
+.step {
+  flex: 1 1 10rem; min-height: 48px; min-width: 0;
+  display: flex; align-items: center; gap: .6rem; text-align: start;
+  padding: .6rem .8rem;
+  background: var(--bg); color: var(--ink);
+  border: 2px solid var(--line); border-radius: var(--radius);
+  font: inherit; font-weight: bold; font-size: .95rem; cursor: pointer;
+  transition: background var(--dur), border-color var(--dur);
+}
+.step:hover { background: var(--surface); border-color: var(--brand-2); }
+.step[aria-selected="true"] { background: var(--brand-1); color: var(--on-brand); border-color: var(--brand-1); }
+html[data-palette="hc"] .step[aria-selected="true"] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.step__n {
+  flex: none; width: 1.75rem; height: 1.75rem; display: grid; place-items: center;
+  border: 2px solid currentColor; border-radius: 50%; font-size: .85rem;
+}
+.step__state { display: block; font-size: .78rem; font-weight: normal; }
+
+.pane { border: 2px solid var(--line); border-radius: var(--radius); padding: 1.5rem; margin-block-end: 2rem; }
+.pane > h2 { margin: 0 0 .35rem; font-size: 1.45rem; line-height: 1.25; color: var(--brand-1); }
+html[data-palette="hc"] .pane > h2, html[data-palette="hc"] .pane h3 { color: var(--accent); }
+.pane h3 { margin: 1.5rem 0 .5rem; font-size: 1.1rem; color: var(--brand-1); }
+.lede { margin: 0 0 1rem; max-width: 68ch; color: var(--ink-soft); }
+html[data-palette="hc"] .lede { color: var(--ink); }
+
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1.25rem; }
+.cols > * { min-width: 0; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; }
+.box h3 { margin-block-start: 0; }
+.box p:last-child, .box ul:last-child { margin-block-end: 0; }
+.box ul { padding-inline-start: 1.2rem; }
+.box li { margin-block-end: .35rem; }
+
+.drop {
+  display: grid; place-items: center; text-align: center; gap: .5rem;
+  min-height: 11rem; padding: 1.25rem;
+  border: 3px dashed var(--brand-2); border-radius: var(--radius); background: var(--surface);
+}
+.drop p { margin: 0; }
+
+.btn {
+  min-height: 44px; padding: .55rem 1.1rem;
+  background: var(--brand-1); color: var(--on-brand);
+  border: 2px solid var(--brand-1); border-radius: 8px;
+  font: inherit; font-weight: bold; cursor: pointer;
+}
+.btn:hover { background: var(--brand-2); border-color: var(--brand-2); }
+.btn--quiet { background: var(--bg); color: var(--brand-1); }
+.btn--quiet:hover { background: var(--surface); color: var(--brand-1); }
+html[data-palette="hc"] .btn { background: var(--bg); color: var(--accent); border-color: var(--accent); }
+html[data-palette="hc"] .btn:hover { background: var(--accent); color: var(--bg); }
+.row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+
+.field { display: grid; gap: .35rem; margin-block-end: 1rem; }
+.field label, .fieldlabel { font-weight: bold; font-size: .95rem; }
+textarea, select, input[type="text"] {
+  font: inherit; color: var(--ink); background: var(--bg);
+  border: 2px solid var(--ink-soft); border-radius: 6px; padding: .5rem .6rem;
+  min-height: 44px; max-width: 100%; width: 100%;
+}
+select { width: auto; }
+.check { display: flex; align-items: flex-start; gap: .6rem; min-height: 44px; padding: .3rem 0; cursor: pointer; }
+.check input { flex: none; width: 1.25rem; height: 1.25rem; margin-top: .15rem; accent-color: var(--brand-2); }
+html[data-palette="hc"] .check input { accent-color: var(--accent); }
+.check small { display: block; color: var(--ink-soft); font-size: .85rem; }
+html[data-palette="hc"] .check small { color: var(--ink); }
+fieldset.plain { border: 0; margin: 0 0 1rem; padding: 0; min-width: 0; }
+fieldset.plain legend { padding: 0; font-weight: bold; margin-block-end: .25rem; }
+
+/* --- Conversation ------------------------------------------------------- */
+.talk { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: .75rem; }
+.talk li { margin: 0; padding: .7rem .9rem; border-radius: var(--radius); max-width: 60ch; border: 1px solid var(--line); }
+.talk .who { display: block; font-size: .8rem; font-weight: bold; color: var(--ink-soft); }
+html[data-palette="hc"] .talk .who { color: var(--ink); }
+.talk .app { background: var(--surface); }
+.talk .you { background: var(--bg); border: 2px solid var(--brand-2); justify-self: end; }
+.facts { display: grid; grid-template-columns: minmax(7rem, auto) 1fr; gap: .4rem 1rem; margin: 0; }
+.facts dt { font-weight: bold; }
+.facts dd { margin: 0; min-width: 0; }
+
+/* --- Verdicts and flags ------------------------------------------------- */
+.verdict { display: inline-flex; align-items: center; gap: .4rem; font-weight: bold; white-space: nowrap; }
+.verdict svg { flex: none; }
+.verdict--yes { color: var(--no); }
+.verdict--no { color: var(--ok); }
+.verdict--maybe { color: var(--brand-3); }
+html[data-palette="hc"] .verdict { color: var(--accent); }
+.tally { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; list-style: none; padding: 0; margin: 0 0 1rem; }
+.tally li { margin: 0; }
+
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+table { border-collapse: collapse; width: 100%; min-width: 46rem; font-size: .93rem; }
+caption { text-align: start; padding: .75rem .9rem; font-weight: bold; }
+th, td { text-align: start; vertical-align: top; padding: .65rem .9rem; border-block-start: 1px solid var(--line); }
+thead th { background: var(--surface); font-size: .85rem; }
+td.time { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.said { font-style: italic; }
+.std { font-size: .85rem; color: var(--ink-soft); display: block; }
+html[data-palette="hc"] .std { color: var(--ink); }
+
+/* --- Review ------------------------------------------------------------- */
+.player {
+  aspect-ratio: 16 / 9; max-width: 100%; display: grid; place-items: center; text-align: center;
+  background: var(--ink); color: var(--bg); border-radius: var(--radius); padding: 1rem;
+}
+html[data-palette="hc"] .player { border: 2px solid var(--accent); }
+.player p { margin: 0; }
+.cues { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+.cue { margin: 0; border: 2px solid var(--line); border-radius: var(--radius); padding: 1rem; }
+.cue__head { display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: baseline; margin-block-end: .6rem; }
+.cue__kind { font-weight: bold; color: var(--brand-1); }
+html[data-palette="hc"] .cue__kind { color: var(--accent); }
+.cue__time { font-variant-numeric: tabular-nums; font-size: .9rem; }
+.flag {
+  display: flex; gap: .5rem; align-items: flex-start;
+  margin: .6rem 0; padding: .55rem .75rem;
+  border: 2px solid var(--brand-3); border-radius: 6px; font-size: .92rem;
+}
+.flag svg { flex: none; margin-top: .15rem; }
+.flag strong { display: block; }
+.cue__state { font-weight: bold; font-size: .92rem; }
+.prov {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 1rem; font-size: .93rem; white-space: pre-wrap; overflow-wrap: anywhere;
+  font-family: "Courier New", Courier, monospace; margin: 0;
+}
+.foot { padding-block: 1.5rem 6rem; font-size: .9rem; color: var(--ink-soft); border-block-start: 1px solid var(--line); }
+html[data-palette="hc"] .foot { color: var(--ink); }
+@media (max-width: 30rem) { .pane { padding: 1rem; } .facts { grid-template-columns: 1fr; } }
+
+#mockNote { margin-block: 0 1.25rem; font-weight: bold; }
+
+/* --- Mode switch -------------------------------------------------------- */
+.modes { display: flex; flex-wrap: wrap; gap: .5rem; margin-block-end: 1.25rem; }
+.mode {
+  min-height: 48px; padding: .5rem 1rem; text-align: start;
+  background: var(--bg); color: var(--ink);
+  border: 2px solid var(--ink-soft); border-radius: 999px;
+  font: inherit; font-weight: bold; cursor: pointer;
+}
+.mode small { display: block; font-weight: normal; font-size: .8rem; }
+.mode[aria-pressed="true"] { background: var(--brand-3); color: var(--on-brand); border-color: var(--brand-3); }
+html[data-palette="hc"] .mode[aria-pressed="true"] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+/* --- Live --------------------------------------------------------------- */
+.live__caps { background: var(--ink); color: var(--bg); border-radius: var(--radius); padding: 1rem 1.25rem; font-size: 1.3rem; line-height: 1.4; }
+html[data-palette="hc"] .live__caps { border: 2px solid var(--accent); }
+.live__caps p { margin: 0 0 .4rem; opacity: .8; }
+.live__caps .live__now { opacity: 1; font-weight: bold; margin: 0; }
+.live__log { padding-inline-start: 1.25rem; }
+.live__log li { margin-block-end: .5rem; }
+
+/* --- Embeddable player preview ------------------------------------------ */
+.ap { border: 2px solid var(--brand-1); border-radius: var(--radius); padding: 1rem; max-width: 46rem; display: grid; gap: .75rem; }
+html[data-palette="hc"] .ap { border-color: var(--accent); }
+.ap__stage { position: relative; aspect-ratio: 16 / 9; max-width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.ap__scene { position: absolute; inset: 0; display: grid; place-items: center; padding: 1rem 1rem 3.5rem; text-align: center; }
+.ap__scene h4 { margin: 0; font-size: 1.5rem; color: var(--brand-1); }
+html[data-palette="hc"] .ap__scene h4 { color: var(--accent); }
+.ap__roles { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; list-style: none; padding: 0; margin: .5rem 0 0; }
+.ap__roles li { margin: 0; border: 2px solid var(--brand-2); border-radius: 999px; padding: .15rem .7rem; font-size: .85rem; font-weight: bold; }
+.ap__roles .me { background: var(--brand-1); color: var(--on-brand); border-color: var(--brand-1); }
+html[data-palette="hc"] .ap__roles li { border-color: var(--accent); }
+.ap__bars { display: flex; align-items: flex-end; gap: 2rem; height: 7rem; margin-top: .5rem; }
+.ap__bars span { width: 3.5rem; background: var(--brand-2); border: 2px solid var(--ink); }
+.ap__bars span + span { background: var(--bg); background-image: repeating-linear-gradient(45deg, var(--ink) 0 2px, transparent 2px 8px); }
+.ap__caption { position: absolute; inset-inline: .75rem; inset-block-end: .6rem; margin: 0; padding: .35rem .7rem; background: var(--ink); color: var(--bg); border-radius: 4px; text-align: center; font-size: 1rem; line-height: 1.35; }
+html[data-palette="hc"] .ap__caption { border: 2px solid var(--accent); }
+.ap__desc { margin: 0; padding: .6rem .8rem; border-inline-start: 6px solid var(--brand-3); background: var(--surface); font-size: .98rem; }
+.ap__bar { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+.ap__bar input[type="range"] { flex: 1 1 10rem; min-width: 0; min-height: 44px; accent-color: var(--brand-2); }
+.ap__time { font-variant-numeric: tabular-nums; font-size: .9rem; }
+.ap__tog[aria-pressed="true"] { background: var(--brand-1); color: var(--on-brand); }
+html[data-palette="hc"] .ap__tog[aria-pressed="true"] { background: var(--accent); color: var(--bg); }
+.ap__trans { border-block-start: 1px solid var(--line); }
+.ap__trans h4 { margin: .75rem 0 .25rem; }
+.ap__trans ol { list-style: none; padding: 0; margin: 0; display: grid; gap: .35rem; }
+.ap__trans li { margin: 0; }
+.ap__trans button { width: 100%; text-align: start; min-height: 44px; padding: .4rem .6rem; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; font: inherit; cursor: pointer; }
+.ap__trans button:hover { background: var(--surface); }
+.ap__trans .k { font-weight: bold; }
+
+/* --- Standards ---------------------------------------------------------- */
+.crit { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 1rem; }
+.crit__item { margin: 0; min-width: 0; border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; }
+.crit__item h3 { margin: 0 0 .4rem; }
+.crit__item p { margin: 0 0 .6rem; }
+.crit__item blockquote { margin: 0 0 .6rem; padding: .5rem .8rem; border-inline-start: 6px solid var(--brand-3); background: var(--surface); font-style: italic; }
+.crit__app { margin-block-end: 0 !important; }
+.refs { padding-inline-start: 0; list-style: none; }
+.refs li { padding-inline-start: 2rem; text-indent: -2rem; margin-block-end: .6rem; overflow-wrap: anywhere; font-size: .93rem; }
+html[data-palette="hc"] .refs a { color: var(--accent); }
+</style>
+
+<a class="skip" href="#main">Skip to main content</a>
+
+<header class="appbar">
+  <div class="wrap">
+    <div class="appbar__id">
+      <h1 class="appbar__name">Describe Studio</h1>
+      <p class="appbar__tag">Captions, audio description, and image description, drafted on your own computer. Working name, by Tech Inclusion Pro.</p>
+    </div>
+    <ul class="chips" aria-label="Processing status">
+      <li><span class="chip">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 11V8a6 6 0 0 1 12 0v3" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="4" y="11" width="16" height="10" rx="2" fill="currentColor"/></svg>
+        Local only. Nothing leaves this computer.</span></li>
+      <li><span class="chip">Cloud: off</span></li>
+    </ul>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div id="a11yHost"></div>
+
+  <div class="example">
+    <p><strong>Example project.</strong> This mockup is filled with sample data so each step shows what it does. Nothing here was produced by a real model run.</p>
+  </div>
+
+  <dl class="project">
+    <div><dt>File</dt><dd>week7-what-does-the-team-do.mp4</dd></div>
+    <div><dt>Length</dt><dd>12 min 40 s</dd></div>
+    <div><dt>Content type</dt><dd>Lecture with slides</dd></div>
+    <div><dt>Making</dt><dd>Captions and audio description</dd></div>
+  </dl>
+
+  <div class="modes" role="group" aria-label="Way of working">
+    <button type="button" class="mode" id="modeRec" aria-pressed="true">Recorded media <small>Draft, review, export</small></button>
+    <button type="button" class="mode" id="modeLive" aria-pressed="false">Live session <small>Live captions and slide announcer</small></button>
+    <button type="button" class="mode" id="modeStd" aria-pressed="false">Description standards <small>Ten criteria and their sources</small></button>
+  </div>
+
+  <p class="example" id="mockNote" hidden></p>
+
+  <div id="recordedView">
+  <div class="steps" role="tablist" aria-label="Project steps">
+    <button type="button" class="step" role="tab" id="tab-media" aria-controls="pane-media" aria-selected="false" tabindex="-1"><span class="step__n" aria-hidden="true">1</span><span>Add media<span class="step__state">Done</span></span></button>
+    <button type="button" class="step" role="tab" id="tab-intent" aria-controls="pane-intent" aria-selected="false" tabindex="-1"><span class="step__n" aria-hidden="true">2</span><span>Say what you want<span class="step__state">Done</span></span></button>
+    <button type="button" class="step" role="tab" id="tab-need" aria-controls="pane-need" aria-selected="true" tabindex="0"><span class="step__n" aria-hidden="true">3</span><span>Need check<span class="step__state">3 decisions waiting</span></span></button>
+    <button type="button" class="step" role="tab" id="tab-review" aria-controls="pane-review" aria-selected="false" tabindex="-1"><span class="step__n" aria-hidden="true">4</span><span>Review<span class="step__state">5 cues to review</span></span></button>
+    <button type="button" class="step" role="tab" id="tab-export" aria-controls="pane-export" aria-selected="false" tabindex="-1"><span class="step__n" aria-hidden="true">5</span><span>Export<span class="step__state">Not started</span></span></button>
+  </div>
+
+  <!-- 1. ADD MEDIA -->
+  <section class="pane" role="tabpanel" id="pane-media" aria-labelledby="tab-media" tabindex="0" hidden>
+    <h2>Add media</h2>
+    <p class="lede">Bring in a video, an audio file, or images. Choose what to make and where the processing happens.</p>
+    <div class="cols">
+      <div>
+        <div class="drop">
+          <p><strong>Drop a file here</strong></p>
+          <p>Video: MP4, MOV, MKV. Audio: MP3, WAV, M4A. Images: PNG, JPG, GIF, WebP. Slides: PDF, PPTX.</p>
+          <button type="button" class="btn" id="btnBrowse">Browse for a file</button>
+        </div>
+      </div>
+      <div>
+        <fieldset class="plain">
+          <legend>What to make</legend>
+          <label class="check"><input type="checkbox" id="mkCaptions" checked><span>Captions <small>Speech, speaker names, and meaningful sounds, for Deaf and hard of hearing viewers</small></span></label>
+          <label class="check"><input type="checkbox" id="mkAD" checked><span>Audio description <small>Narration of what is visible, for blind and low vision viewers</small></span></label>
+          <label class="check"><input type="checkbox" id="mkImg"><span>Image descriptions <small>Alt text and long descriptions for still images, slides, and charts</small></span></label>
+        </fieldset>
+        <fieldset class="plain">
+          <legend>Audio description style</legend>
+          <label class="check"><input type="radio" name="adstyle" id="adStd" value="standard"><span>Standard <small>Descriptions fit into natural pauses. The video length does not change. WCAG 1.2.5, Level AA.</small></span></label>
+          <label class="check"><input type="radio" name="adstyle" id="adExt" value="extended" checked><span>Extended where needed <small>When a description does not fit the pause, the video pauses until the description finishes. WCAG 1.2.7, Level AAA. Suggested for lectures.</small></span></label>
+          <label class="check"><input type="radio" name="adstyle" id="adPre" value="before"><span>Extended, described first <small>The video pauses and each visual is described before the speaker discusses it, so students get the information at the same moment as their peers.</small></span></label>
+        </fieldset>
+        <fieldset class="plain">
+          <legend>How much review</legend>
+          <label class="check"><input type="radio" name="reviewlvl" id="rvFull" value="full" checked><span>Review before export <small>Recommended. Nothing is released until a person approves it.</small></span></label>
+          <label class="check"><input type="radio" name="reviewlvl" id="rvQuick" value="quick"><span>Quick draft for Panopto <small>Runs the need check, drafts the descriptions, and writes a Panopto-ready file in one pass. The file is stamped "not reviewed by a person."</small></span></label>
+        </fieldset>
+        <fieldset class="plain">
+          <legend>Where processing happens</legend>
+          <label class="check"><input type="radio" name="where" id="whereLocal" value="local" checked><span>On this computer <small>Default. Works offline. Slower on long videos.</small></span></label>
+          <label class="check"><input type="radio" name="where" id="whereCloud" value="cloud"><span>Cloud service with my own key <small>Off until you turn it on. You will see exactly which files would be sent before anything is sent.</small></span></label>
+        </fieldset>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. INTENT -->
+  <section class="pane" role="tabpanel" id="pane-intent" aria-labelledby="tab-intent" tabindex="0" hidden>
+    <h2>Say what you want</h2>
+    <p class="lede">Before any model runs, tell the app about this video in your own words. Speak or type. Your answers steer every later step.</p>
+    <div class="cols">
+      <div>
+        <ul class="talk" aria-label="Conversation so far">
+          <li class="app"><span class="who">Describe Studio</span>Who is this video for, and what do they need to get from it?</li>
+          <li class="you"><span class="who">You</span>It is a week 7 lecture for undergraduates in an intro special education course. They need to know who is on an IEP team and what each person does.</li>
+          <li class="app"><span class="who">Describe Studio</span>Are there people on screen I should name? I will not guess who anyone is.</li>
+          <li class="you"><span class="who">You</span>Just me, the instructor. Call me Dr. Catrone.</li>
+          <li class="app"><span class="who">Describe Studio</span>How much detail do you want in descriptions: short, or fuller?</li>
+          <li class="you"><span class="who">You</span>Short. Only what a student needs for the quiz.</li>
+        </ul>
+        <div class="field">
+          <label for="intentText">Add anything else</label>
+          <textarea id="intentText" rows="2" placeholder="Type here, or use the Speak button"></textarea>
+        </div>
+        <div class="row">
+          <button type="button" class="btn" id="btnSpeak" aria-pressed="false">Speak</button>
+          <button type="button" class="btn btn--quiet" id="btnSendIntent">Add to my answers</button>
+        </div>
+      </div>
+      <div class="box">
+        <h3>What the app understood</h3>
+        <dl class="facts">
+          <dt>Audience</dt><dd>Undergraduate students</dd>
+          <dt>Purpose</dt><dd>Learn IEP team roles</dd>
+          <dt>Content type</dt><dd>Lecture with slides</dd>
+          <dt>People named</dt><dd>Dr. Catrone (instructor)</dd>
+          <dt>Detail level</dt><dd>Concise</dd>
+          <dt>Languages</dt><dd>English, Spanish</dd>
+          <dt>Key terms</dt><dd>IEP, LEA representative, general education teacher</dd>
+        </dl>
+        <p><button type="button" class="btn btn--quiet" id="btnEditIntent">Edit these</button></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. NEED CHECK -->
+  <section class="pane" role="tabpanel" id="pane-need" aria-labelledby="tab-need" tabindex="0">
+    <h2>Is audio description needed?</h2>
+    <p class="lede">The app compared what is shown with what is said. Audio description is needed only where important visual information is not already in the audio. You make the final call on every segment.</p>
+
+    <ul class="tally" aria-label="Summary of findings">
+      <li><span class="verdict verdict--yes"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 22 21H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 9v6M12 17.6v.4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>3 segments need description</span></li>
+      <li><span class="verdict verdict--no"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m7 12.5 3.5 3.5L17 9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>3 already covered by the audio</span></li>
+      <li><span class="verdict verdict--maybe"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M9 9.5a3 3 0 1 1 4.2 2.7c-.8.4-1.2 1-1.2 1.8M12 17.4v.4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>1 the app could not decide</span></li>
+    </ul>
+
+    <div class="scroll" tabindex="0" role="region" aria-label="Segment findings table">
+      <table>
+        <caption>Findings by segment</caption>
+        <thead>
+          <tr><th scope="col">Time</th><th scope="col">On screen</th><th scope="col">Said aloud</th><th scope="col">Finding</th><th scope="col">Your decision</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="time">00:00 to 00:12</td>
+            <td>Title slide with the course name and week</td>
+            <td class="said">"Welcome to week seven. Today: what does the team do?"</td>
+            <td><span class="verdict verdict--no"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m7 12.5 3.5 3.5L17 9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Not needed</span><span class="std">On-screen text is read aloud.</span></td>
+            <td><label class="sr-only" for="dec1">Decision for 00:00</label><select id="dec1"><option selected>Skip</option><option>Describe</option></select></td>
+          </tr>
+          <tr>
+            <td class="time">00:48 to 01:20</td>
+            <td>Diagram: a student at the center, six team roles around them</td>
+            <td class="said">"As you can see here, each of these people has a job."</td>
+            <td><span class="verdict verdict--yes"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 22 21H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 9v6M12 17.6v.4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Needed</span><span class="std">The six roles are shown but never named. WCAG 1.2.5 (AA).</span></td>
+            <td><label class="sr-only" for="dec2">Decision for 00:48</label><select id="dec2"><option>Skip</option><option selected>Describe</option></select></td>
+          </tr>
+          <tr>
+            <td class="time">02:05 to 02:40</td>
+            <td>Slide with four bullet points</td>
+            <td class="said">Speaker reads all four bullets.</td>
+            <td><span class="verdict verdict--no"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m7 12.5 3.5 3.5L17 9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Not needed</span><span class="std">All slide text matches the transcript.</span></td>
+            <td><label class="sr-only" for="dec3">Decision for 02:05</label><select id="dec3"><option selected>Skip</option><option>Describe</option></select></td>
+          </tr>
+          <tr>
+            <td class="time">03:30 to 04:10</td>
+            <td>Bar chart comparing two groups of districts</td>
+            <td class="said">"The gap is pretty clear."</td>
+            <td><span class="verdict verdict--yes"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 22 21H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 9v6M12 17.6v.4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Needed</span><span class="std">The chart's labels and values are only visual. WCAG 1.2.5 (AA).</span></td>
+            <td><label class="sr-only" for="dec4">Decision for 03:30</label><select id="dec4"><option>Skip</option><option selected>Describe</option></select></td>
+          </tr>
+          <tr>
+            <td class="time">05:15 to 05:25</td>
+            <td>Speaker on camera, holding up a printed form</td>
+            <td class="said">"This is the form I mean."</td>
+            <td><span class="verdict verdict--maybe"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M9 9.5a3 3 0 1 1 4.2 2.7c-.8.4-1.2 1-1.2 1.8M12 17.4v.4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Uncertain</span><span class="std">The form's title may matter. The app could not read it.</span></td>
+            <td><label class="sr-only" for="dec5">Decision for 05:15</label><select id="dec5"><option selected>Choose</option><option>Skip</option><option>Describe</option></select></td>
+          </tr>
+          <tr>
+            <td class="time">07:02 to 07:45</td>
+            <td>Screen recording: clicking through an online form</td>
+            <td class="said">"Then you click this, and then this."</td>
+            <td><span class="verdict verdict--yes"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 22 21H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 9v6M12 17.6v.4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Needed</span><span class="std">No pause long enough. Extended description, WCAG 1.2.7 (AAA), or a described transcript.</span></td>
+            <td><label class="sr-only" for="dec6">Decision for 07:02</label><select id="dec6"><option>Skip</option><option selected>Describe</option></select></td>
+          </tr>
+          <tr>
+            <td class="time">09:10 to 09:30</td>
+            <td>Closing slide, text only</td>
+            <td class="said">Speaker reads the slide.</td>
+            <td><span class="verdict verdict--no"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m7 12.5 3.5 3.5L17 9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Not needed</span><span class="std">On-screen text is read aloud.</span></td>
+            <td><label class="sr-only" for="dec7">Decision for 09:10</label><select id="dec7"><option selected>Skip</option><option>Describe</option></select></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cols" style="margin-block-start:1.25rem">
+      <div class="box">
+        <h3>The rule this check applies</h3>
+        <p>W3C states that if all important information in the video track is already conveyed in the audio track, no additional audio description is necessary. The app never marks a whole video as exempt by itself. It reports segment by segment and records your decision with your name and the date.</p>
+        <p class="std">Standards checked: WCAG 2.1 and 2.2 (1.2.3, 1.2.5, 1.2.7, 1.2.8), Section 508, ADA Title II web rule, EN 301 549, DCMP Description Key.</p>
+      </div>
+      <div class="box">
+        <h3>Fix it at the source</h3>
+        <p>If you can re-record, saying these aloud removes the need for a separate description track:</p>
+        <ul>
+          <li><strong>00:48</strong> Replace "as you can see here" with the six role names.</li>
+          <li><strong>03:30</strong> Say what the two bars are and which is taller.</li>
+          <li><strong>07:02</strong> Name each button as you click it.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. REVIEW -->
+  <section class="pane" role="tabpanel" id="pane-review" aria-labelledby="tab-review" tabindex="0" hidden>
+    <h2>Review the draft</h2>
+    <p class="lede">Every cue is a draft until a person approves it. Flags say where to look first. Each cue can be played, edited, and approved from the keyboard.</p>
+    <p><button type="button" class="btn btn--quiet" id="btnOpenStd">Open the ten description standards these drafts are checked against</button></p>
+    <div class="cols">
+      <div>
+        <div class="player" role="img" aria-label="Video player placeholder. Paused at 00 minutes 52 seconds.">
+          <p><strong>Video player</strong><br>Paused at 00:52 of 12:40</p>
+        </div>
+        <div class="row" style="margin-block-start:.75rem">
+          <button type="button" class="btn" id="btnPlay">Play from this cue</button>
+          <button type="button" class="btn btn--quiet" id="btnHear">Hear the description</button>
+        </div>
+        <fieldset class="plain" style="margin-block-start:1rem">
+          <legend>Show</legend>
+          <label class="check"><input type="checkbox" id="showCap" checked><span>Captions</span></label>
+          <label class="check"><input type="checkbox" id="showAD" checked><span>Audio description</span></label>
+          <label class="check"><input type="checkbox" id="showFlag"><span>Flagged cues only</span></label>
+        </fieldset>
+      </div>
+      <ol class="cues" aria-label="Cues to review">
+        <li class="cue">
+          <div class="cue__head"><span class="cue__kind">Caption</span><span class="cue__time">00:48.2 to 00:51.6</span><span class="cue__state" id="st1">Draft</span></div>
+          <div class="field"><label for="cue1">Caption text</label><textarea id="cue1" rows="2">Dr. Catrone: As you can see here, each of these people has a job.</textarea></div>
+          <button type="button" class="btn btn--quiet" data-approve="st1">Approve</button>
+        </li>
+        <li class="cue">
+          <div class="cue__head"><span class="cue__kind">Audio description</span><span class="cue__time">00:52.0, gap of 3.4 s</span><span class="cue__state" id="st2">Draft</span></div>
+          <div class="field"><label for="cue2">Description text</label><textarea id="cue2" rows="3">A diagram shows a student at the center, circled by six roles: parent, general education teacher, special education teacher, district representative, evaluator, and the student.</textarea></div>
+          <div class="flag"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 6v7l4 2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><div><strong>Too long for the gap</strong>About 8 seconds of speech for a 3.4 second pause.</div></div>
+          <div class="row">
+            <button type="button" class="btn btn--quiet" id="btnShorten">Shorten to fit</button>
+            <button type="button" class="btn btn--quiet" id="btnExtend">Pause the video here</button>
+            <button type="button" class="btn btn--quiet" data-approve="st2">Approve</button>
+          </div>
+        </li>
+        <li class="cue">
+          <div class="cue__head"><span class="cue__kind">Caption</span><span class="cue__time">05:15.0 to 05:18.3</span><span class="cue__state" id="st3">Draft</span></div>
+          <div class="field"><label for="cue3">Caption text</label><textarea id="cue3" rows="2">Dr. Catrone: This is the form I mean, from the eligibility meeting.</textarea></div>
+          <div class="flag"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 22 21H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 9v6M12 17.6v.4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><div><strong>Low confidence word</strong>"eligibility" was hard to hear. Listen and confirm.</div></div>
+          <button type="button" class="btn btn--quiet" data-approve="st3">Approve</button>
+        </li>
+        <li class="cue">
+          <div class="cue__head"><span class="cue__kind">Audio description</span><span class="cue__time">05:19.0, gap of 2.8 s</span><span class="cue__state" id="st4">Draft</span></div>
+          <div class="field"><label for="cue4">Description text</label><textarea id="cue4" rows="2">Dr. Catrone holds up a printed form.</textarea></div>
+          <div class="flag"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M4 21c1-4.5 4-6.5 8-6.5s7 2 8 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><div><strong>Name came from you</strong>The app describes what is visible and never guesses race, gender, age, or disability. This name is from your answers in step 2.</div></div>
+          <button type="button" class="btn btn--quiet" data-approve="st4">Approve</button>
+        </li>
+        <li class="cue">
+          <div class="cue__head"><span class="cue__kind">Audio description</span><span class="cue__time">07:05.0, no gap</span><span class="cue__state" id="st5">Draft</span></div>
+          <div class="field"><label for="cue5">Description text</label><textarea id="cue5" rows="2">The pointer selects "New referral," then a button labeled "Submit."</textarea></div>
+          <div class="flag"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 22 21H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 9v6M12 17.6v.4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><div><strong>Could not confirm</strong>The second check did not find the word "Submit" in the text read from the screen. Look at the frame before approving.</div></div>
+          <button type="button" class="btn btn--quiet" data-approve="st5">Approve</button>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 5. EXPORT -->
+  <section class="pane" role="tabpanel" id="pane-export" aria-labelledby="tab-export" tabindex="0" hidden>
+    <h2>Export</h2>
+    <p class="lede">Choose the files you need. Every export carries a record of what was drafted by a model and what a person reviewed.</p>
+    <div class="cols">
+      <div>
+        <fieldset class="plain">
+          <legend>Captions</legend>
+          <label class="check"><input type="checkbox" id="exVtt" checked><span>WebVTT captions (.vtt)</span></label>
+          <label class="check"><input type="checkbox" id="exSrt"><span>SRT captions (.srt)</span></label>
+        </fieldset>
+        <fieldset class="plain">
+          <legend>Audio description</legend>
+          <label class="check"><input type="checkbox" id="exAdVtt" checked><span>Descriptions track (.vtt) <small>Standard WebVTT descriptions, for web players</small></span></label>
+          <label class="check"><input type="checkbox" id="exPanopto" checked><span>Panopto descriptions file (.vtt) <small>Timestamped text that Panopto reads aloud. Written in two cue formats until one is confirmed on your Panopto site.</small></span></label>
+          <label class="check"><input type="checkbox" id="exAdMp4"><span>Described video (.mp4) <small>Narration mixed in with a local voice, original audio lowered under it</small></span></label>
+          <label class="check"><input type="checkbox" id="exScript"><span>Description script (.docx)</span></label>
+          <label class="check"><input type="checkbox" id="exTranscript" checked><span>Described transcript (.html, .docx) <small>Speech and descriptions together, readable without the video</small></span></label>
+        </fieldset>
+        <fieldset class="plain">
+          <legend>Player for your own site</legend>
+          <label class="check"><input type="checkbox" id="exPlayer" checked><span>Accessible player (.html) <small>One page with the video, captions, spoken and on-screen description, extended description, and a transcript. Embed it with one line of code. Descriptions are read by the viewer's own browser voice.</small></span></label>
+        </fieldset>
+        <fieldset class="plain">
+          <legend>Languages</legend>
+          <label class="check"><input type="checkbox" id="exEn" checked><span>English</span></label>
+          <label class="check"><input type="checkbox" id="exEs" checked><span>Spanish <small>Marked as needing review by a Spanish reader before release</small></span></label>
+        </fieldset>
+        <button type="button" class="btn" id="btnExport">Export 6 files</button>
+      </div>
+      <div>
+        <h3 style="margin-block-start:0">Record that travels with the files</h3>
+        <pre class="prov" tabindex="0" aria-label="Provenance record preview">Project: week7-what-does-the-team-do.mp4
+Captions: drafted on this computer, 0 of 2 flagged cues approved
+Descriptions: drafted on this computer, 0 of 3 cues approved
+Need check: 3 described, 3 skipped, 1 undecided
+Decisions by: (your name), (date)
+Cloud services used: none
+Status: DRAFT. Not yet reviewed by a person.</pre>
+      </div>
+    </div>
+
+    <h3>Player preview</h3>
+    <p class="lede">This is the player the app writes. Press Play. The sample has no recorded speech, so the captions stand in for it. With "Pause video for descriptions" on, the video waits while a description is read. That is extended audio description. Turn it off to hear the description over the video instead.</p>
+    <div class="ap" id="ap">
+      <div class="ap__stage" id="apStage" role="img" aria-label="Sample video">
+        <div class="ap__scene" id="apScene" aria-hidden="true"></div>
+        <p class="ap__caption" id="apCap" hidden></p>
+      </div>
+      <p class="ap__desc" id="apDesc" hidden></p>
+      <div class="ap__bar">
+        <button type="button" class="btn" id="apPlay">Play</button>
+        <label class="sr-only" for="apSeek">Seek</label>
+        <input type="range" id="apSeek" min="0" max="24" step="0.1" value="0">
+        <span class="ap__time" id="apTime">0:00 / 0:24</span>
+      </div>
+      <div class="ap__bar">
+        <button type="button" class="btn btn--quiet ap__tog" id="apTCap" aria-pressed="true">Captions</button>
+        <button type="button" class="btn btn--quiet ap__tog" id="apTSpeak" aria-pressed="true">Spoken description</button>
+        <button type="button" class="btn btn--quiet ap__tog" id="apTPause" aria-pressed="true">Pause video for descriptions</button>
+        <button type="button" class="btn btn--quiet ap__tog" id="apTText" aria-pressed="true">Description text</button>
+        <button type="button" class="btn btn--quiet ap__tog" id="apTTrans" aria-pressed="false" aria-controls="apTrans">Transcript</button>
+        <label for="apRate">Description speed</label>
+        <select id="apRate"><option value="0.8">Slower</option><option value="1" selected>Normal</option><option value="1.3">Faster</option></select>
+      </div>
+      <div class="ap__trans" id="apTrans" hidden>
+        <h4>Described transcript</h4>
+        <ol id="apTransList"></ol>
+      </div>
+    </div>
+
+    <h3>Embed code</h3>
+    <p class="lede">Paste this into any page. The player file, the video, and the caption and description files stay together in one folder on your site.</p>
+    <pre class="prov" id="embedCode" tabindex="0" aria-label="Embed code">&lt;iframe src="week7-player/index.html"
+  title="Week 7: What does the team do? Video with captions and audio description"
+  width="800" height="620" allowfullscreen&gt;&lt;/iframe&gt;</pre>
+    <p><button type="button" class="btn btn--quiet" id="btnCopyEmbed">Copy embed code</button></p>
+  </section>
+  </div>
+
+  <!-- LIVE SESSION -->
+  <section class="pane" id="liveView" aria-labelledby="live-h" hidden>
+    <h2 id="live-h">Live session</h2>
+    <p class="lede">Live captions and a slide-change announcer, both running on this computer. Live mode does not try to describe people or scenes as they happen. Local models are not yet fast or accurate enough for that.</p>
+    <div class="cols">
+      <div>
+        <h3 style="margin-block-start:0">Live captions</h3>
+        <div class="live__caps" aria-label="Sample live captions">
+          <p>Dr. Catrone: So before we get to the form itself,</p>
+          <p>let's name who has to be in the room.</p>
+          <p class="live__now">The district representative is the person who can commit resources</p>
+        </div>
+        <p class="std">Sample text. Target delay: under one second behind the speaker.</p>
+        <div class="row">
+          <button type="button" class="btn" id="btnLiveStart" aria-pressed="false">Start session</button>
+          <button type="button" class="btn btn--quiet" id="btnLivePop">Open captions in their own window</button>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-block-start:0">Slide announcer</h3>
+        <p>When the slide changes, the app reads the text on it and speaks the title.</p>
+        <ol class="live__log" aria-label="Sample announcements">
+          <li><span class="cue__time">10:02:14</span> Slide 3. "Who is on the team?"</li>
+          <li><span class="cue__time">10:05:40</span> Slide 4. "What each person brings." Diagram, six labels.</li>
+          <li><span class="cue__time">10:09:03</span> Slide 5. "Plans by district." Chart. Text on slide read; chart shape not described live.</li>
+        </ol>
+        <fieldset class="plain">
+          <legend>Settings</legend>
+          <label class="check"><input type="checkbox" id="lvCap" checked><span>Live captions</span></label>
+          <label class="check"><input type="checkbox" id="lvSlide" checked><span>Announce slide changes</span></label>
+          <label class="check"><input type="checkbox" id="lvFull"><span>Read all slide text, not only the title</span></label>
+          <label class="check"><input type="checkbox" id="lvSave" checked><span>Save the recording and transcript <small>Afterward, run the full need check and review on it</small></span></label>
+        </fieldset>
+        <div class="field">
+          <label for="lvOut">Where the announcer voice plays</label>
+          <select id="lvOut"><option selected>Private channel (headphones)</option><option>Room speakers</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="box" style="margin-block-start:1.25rem">
+      <h3>What live mode is for</h3>
+      <p>It adds access where there would otherwise be none. It does not replace a human captioner (CART) when one is a student's approved accommodation, and its error rate is higher for some accents and speech patterns than others.</p>
+    </div>
+  </section>
+
+  <!-- DESCRIPTION STANDARDS -->
+  <section class="pane" id="stdView" aria-labelledby="std-h" hidden>
+    <h2 id="std-h">Description standards</h2>
+    <p class="lede">Ten criteria for audio description, also called video description. Each one comes from an organization of people with disabilities, quoted and cited. The app checks its drafts against these, and this page ships inside the app.</p>
+    <ol class="crit">
+        <li class="crit__item">
+          <h3>1. Describe what is essential first</h3>
+          <p>Choose the visual information a viewer needs to understand and appreciate the content. Leave the rest.</p>
+          <blockquote>“Describe what is most essential for the viewer to know in order to understand and appreciate the image.”</blockquote>
+          <p class="std"><strong>Source:</strong> American Council of the Blind, Audio Description Project (2009)</p>
+          <p class="crit__app"><strong>In this app:</strong> The need check ranks visual information by whether the audio already carries it, and step 2 asks you what viewers need from the video.</p>
+        </li>
+        <li class="crit__item">
+          <h3>2. Say what you see, without interpreting</h3>
+          <p>Describe what is visible. Do not add opinion, guess at feelings, or leave things out because they are uncomfortable.</p>
+          <blockquote>“What you see is what you say.”</blockquote>
+          <p class="std"><strong>Source:</strong> American Council of the Blind, Audio Description Project (2009). Also Described and Captioned Media Program (n.d.): “Describe objectively without personal interpretation, censorship, or comment.”</p>
+          <p class="crit__app"><strong>In this app:</strong> Drafting prompts forbid inferred emotions and motives. A draft that says “he is furious” is flagged; “he clenches his fist” is not.</p>
+        </li>
+        <li class="crit__item">
+          <h3>3. Be accurate</h3>
+          <p>A wrong description is worse than none, because the listener cannot check it against the screen.</p>
+          <blockquote>“There must be no errors in word selection, pronunciation, diction, or enunciation.”</blockquote>
+          <p class="std"><strong>Source:</strong> Described and Captioned Media Program (n.d.)</p>
+          <p class="crit__app"><strong>In this app:</strong> A second pass checks every draft against the frames and the text read from the screen, and flags anything it cannot confirm.</p>
+        </li>
+        <li class="crit__item">
+          <h3>4. Respect the soundtrack</h3>
+          <p>Fit descriptions into pauses. Do not talk over dialogue or important sound, and do not fill every silence.</p>
+          <blockquote>“Do not be tempted to fill every pause. Allow the atmosphere and background noise to come through.”</blockquote>
+          <p class="std"><strong>Source:</strong> Audio Description International Guidelines Committee (2003), published by the ACB Audio Description Project</p>
+          <p class="crit__app"><strong>In this app:</strong> Descriptions are timed to gaps in speech. When one does not fit, you choose to shorten it or use extended description.</p>
+        </li>
+        <li class="crit__item">
+          <h3>5. Use clear, concise language for this audience</h3>
+          <p>Write so the description is understood the first time it is heard, at a level that fits the viewers.</p>
+          <blockquote>“Write simply, clearly and concisely. Ensure your description is easy to comprehend the first time it is heard.”</blockquote>
+          <p class="std"><strong>Source:</strong> Audio Description International Guidelines Committee (2003). Also Described and Captioned Media Program (n.d.) on age-appropriate vocabulary and pace.</p>
+          <p class="crit__app"><strong>In this app:</strong> Your audience answer in step 2 sets vocabulary and length. Concise is the default.</p>
+        </li>
+        <li class="crit__item">
+          <h3>6. Describe people equitably</h3>
+          <p>Describe visible characteristics for everyone or for no one. Never treat one group as the default, and never guess identity.</p>
+          <blockquote>“Citing the race only of non-white individuals establishes ‘white’ as a default and is unacceptable.”</blockquote>
+          <p class="std"><strong>Source:</strong> American Council of the Blind, Audio Description Project (2009). Also Described and Captioned Media Program (n.d.): “Do not make assumptions as to someone’s race.”</p>
+          <p class="crit__app"><strong>In this app:</strong> The app never infers race, gender, age, or disability. Names and self-descriptions come only from you or from text on screen.</p>
+        </li>
+        <li class="crit__item">
+          <h3>7. Give equal access to meaning, at the same moment</h3>
+          <p>The point is the meaning and intent of the program, delivered when sighted viewers get it. In teaching, describe before the content, not after.</p>
+          <blockquote>“When expanded description is a technical option, provide description before the content rather than after.”</blockquote>
+          <p class="std"><strong>Source:</strong> Described and Captioned Media Program (n.d.)</p>
+          <p class="crit__app"><strong>In this app:</strong> The “Extended, described first” style in step 1 does this. The exported player supports the pause.</p>
+        </li>
+        <li class="crit__item">
+          <h3>8. Treat the voice as part of access</h3>
+          <p>A human voice is the standard. A synthetic voice is acceptable only when it is natural, clear, correctly pronounced, and listeners are told.</p>
+          <blockquote>“Human-voiced Audio Description remains the gold standard.”</blockquote>
+          <p class="std"><strong>Source:</strong> American Council of the Blind (n.d.), Guidelines for the Use of Text to Speech</p>
+          <p class="crit__app"><strong>In this app:</strong> Every export and the player state that the voice is synthetic. You can replace any cue with your own recorded voice.</p>
+        </li>
+        <li class="crit__item">
+          <h3>9. Put blind and low vision people in the review</h3>
+          <p>Quality is judged by the people description is for. Machine drafts are never released unreviewed.</p>
+          <blockquote>“Get feedback.”</blockquote>
+          <p class="std"><strong>Source:</strong> American Council of the Blind, Audio Description Project (2009). The ACB text-to-speech guidelines also call for quality review that includes blind and low-vision professionals.</p>
+          <p class="crit__app"><strong>In this app:</strong> The review editor works by keyboard and screen reader, and the record names who reviewed. Quick drafts are stamped “not reviewed by a person.”</p>
+        </li>
+        <li class="crit__item">
+          <h3>10. Protect the images people share</h3>
+          <p>Images collected to produce descriptions should not be stored, passed on, or misused.</p>
+          <blockquote>“Implement sensible protections that prevent images taken, imported, or otherwise collected for the purpose of providing visual descriptions to the blind from being stored, disseminated, or otherwise misused.”</blockquote>
+          <p class="std"><strong>Source:</strong> National Federation of the Blind, Resolution 2024-08 (2024)</p>
+          <p class="crit__app"><strong>In this app:</strong> Processing happens on your computer by default. Cloud use is off until you turn it on, and you see what would be sent first.</p>
+        </li>
+    </ol>
+
+    <h3>Who wrote these standards</h3>
+    <div class="scroll" tabindex="0" role="region" aria-label="Source organizations table">
+      <table>
+        <caption>Source organizations and who leads them</caption>
+        <thead><tr><th scope="col">Organization</th><th scope="col">Who leads it</th><th scope="col">How it is used here</th></tr></thead>
+        <tbody>
+          <tr><td>American Council of the Blind (ACB), including its Audio Description Project</td><td>Blind-led. A membership organization of people who are blind or have low vision. Its constitution states that all members of the Board of Directors shall be legally blind.</td><td>Primary source for criteria 1, 2, 4, 5, 6, 8, and 9.</td></tr>
+          <tr><td>National Federation of the Blind (NFB)</td><td>Blind-led. “We are blind people, from our democratically elected leaders to our diverse nationwide membership.”</td><td>Primary source for criterion 10.</td></tr>
+          <tr><td>Described and Captioned Media Program (DCMP)</td><td>Administered by the National Association of the Deaf, an organization “of, by and for deaf and hard of hearing individuals.” Deaf-led, not blind-led. The Description Key was developed with the American Foundation for the Blind.</td><td>Primary source for criteria 3 and 7. Supporting source for 2, 5, and 6.</td></tr>
+          <tr><td>Audio Description International (ADI)</td><td>Leadership not confirmed. Its 2003 guidelines are published by the ACB Audio Description Project.</td><td>Quoted in criteria 4 and 5 because ACB publishes them.</td></tr>
+          <tr><td>Royal National Institute of Blind People (RNIB)</td><td>Not majority blind-led. RNIB reports that four of its ten trustees are blind or partially sighted.</td><td>Supporting evidence only. Its 2025 study with blind and partially sighted viewers recommends clear labeling and human review of AI-generated description.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>References</h3>
+    <ul class="refs">
+      <li>American Council of the Blind. (n.d.). <i>Guidelines for the use of text to speech (TTS)</i>. <a href="https://www.acb.org/guidelines-for-use-of-text-to-speech-tts">https://www.acb.org/guidelines-for-use-of-text-to-speech-tts</a></li>
+      <li>American Council of the Blind. (2024). <i>Constitution and bylaws</i>. <a href="https://www.acb.org/node/8777">https://www.acb.org/node/8777</a></li>
+      <li>American Council of the Blind, Audio Description Project. (2009). <i>Audio description standards: A work in progress</i>. <a href="https://adp.acb.org/docs/ADP_Standards.pdf">https://adp.acb.org/docs/ADP_Standards.pdf</a></li>
+      <li>Audio Description International, Guidelines Committee. (2003). <i>Guidelines for audio describers</i>. American Council of the Blind, Audio Description Project. <a href="https://adp.acb.org/guidelines.html">https://adp.acb.org/guidelines.html</a></li>
+      <li>Braun, S., Qian, S., Zou, Y., &amp; Orasan, C. (2025). <i>Evaluation of AI-generated audio description for factual TV/media genres</i>. Royal National Institute of Blind People. <a href="https://media.rnib.org.uk/documents/AI-Generated_Audio_Description_Report_August_2025.pdf">https://media.rnib.org.uk/documents/AI-Generated_Audio_Description_Report_August_2025.pdf</a></li>
+      <li>Described and Captioned Media Program. (n.d.). <i>Description key</i>. <a href="https://dcmp.org/learn/descriptionkey">https://dcmp.org/learn/descriptionkey</a></li>
+      <li>National Association of the Deaf. (n.d.). <i>About us</i>. <a href="https://www.nad.org/about-us/">https://www.nad.org/about-us/</a></li>
+      <li>National Federation of the Blind. (n.d.). <i>About us</i>. <a href="https://nfb.org/about-us">https://nfb.org/about-us</a></li>
+      <li>National Federation of the Blind. (2024). <i>Resolution 2024-08: Regarding potential regulation of the use of artificial intelligence in visual interpretation</i>. <a href="https://nfb.org/resources/speeches-and-reports/resolutions/2024-resolutions">https://nfb.org/resources/speeches-and-reports/resolutions/2024-resolutions</a></li>
+      <li>Royal National Institute of Blind People. (n.d.). <i>How we are governed</i>. <a href="https://rnib.org.uk/about-us/who-we-are/how-we-are-governed">https://rnib.org.uk/about-us/who-we-are/how-we-are-governed</a></li>
+    </ul>
+    <p class="std">Quotations were collected in October 2026 and need a line-by-line check against the original documents before release.</p>
+  </section>
+
+  <p class="foot">Mockup for discussion. Sample data only. The display settings button changes how this page looks and stores your choices on your own device.</p>
+</main>
+
+<div class="a11y" id="a11yWidget" data-corner="br">
+
+  <button type="button" class="fab" id="a11yToggle" aria-expanded="false" aria-controls="a11yPanel" aria-label="Display settings">
+    <svg class="fab__icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="12" cy="6.2" r="1.7" fill="currentColor"/>
+      <path d="M5.5 9.3h13M12 9.6v5.1m0 0-2.9 5.2m2.9-5.2 2.9 5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span class="fab__label" aria-hidden="true">Display settings</span>
+  </button>
+
+  <div class="panel" id="a11yPanel" role="group" aria-labelledby="a11yTitle" hidden>
+
+    <div class="panel__bar">
+      <button type="button" class="grip" id="a11yGrip" aria-label="Move this panel. Drag with a pointer, or press the arrow keys while this button is focused.">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="8" cy="6" r="1.8" fill="currentColor"/><circle cx="16" cy="6" r="1.8" fill="currentColor"/>
+          <circle cx="8" cy="12" r="1.8" fill="currentColor"/><circle cx="16" cy="12" r="1.8" fill="currentColor"/>
+          <circle cx="8" cy="18" r="1.8" fill="currentColor"/><circle cx="16" cy="18" r="1.8" fill="currentColor"/>
+        </svg>
+      </button>
+      <h2 class="panel__title" id="a11yTitle">Display settings</h2>
+      <button type="button" class="panel__close" id="a11yClose" aria-label="Close display settings">&times;</button>
+    </div>
+
+    <fieldset>
+      <legend>Text size</legend>
+      <label class="opt"><input type="radio" name="textsize" value="0" checked><span>Default</span></label>
+      <label class="opt"><input type="radio" name="textsize" value="1"><span>Large <small>115%</small></span></label>
+      <label class="opt"><input type="radio" name="textsize" value="2"><span>Larger <small>130%</small></span></label>
+      <label class="opt"><input type="radio" name="textsize" value="3"><span>Largest <small>150%</small></span></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Text spacing</legend>
+      <label class="opt"><input type="radio" name="spacing" value="0" checked><span>Default</span></label>
+      <label class="opt"><input type="radio" name="spacing" value="1"><span>Roomy</span></label>
+      <label class="opt"><input type="radio" name="spacing" value="2"><span>Widest <small>Meets the WCAG text-spacing metrics</small></span></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Color</legend>
+      <p class="hint">These change the palette so colors stay separable. They do not simulate color blindness.</p>
+      <label class="opt"><input type="radio" name="palette" value="brand" checked><span>Brand colors</span></label>
+      <label class="opt"><input type="radio" name="palette" value="cvd"><span>Color-vision friendly <small>Blue and orange, separable across protan, deutan, and tritan vision</small></span></label>
+      <label class="opt"><input type="radio" name="palette" value="mono"><span>Monochrome <small>Grayscale only</small></span></label>
+      <label class="opt"><input type="radio" name="palette" value="hc"><span>High contrast <small>Yellow on black</small></span></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Reading font</legend>
+      <label class="opt"><input type="checkbox" id="optDyslexic"><span>OpenDyslexic font <small>Some readers prefer it. Research on whether it improves reading speed is mixed, so try it and keep it only if it helps you.</small></span></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Pointer</legend>
+      <label class="opt"><input type="radio" name="cursor" value="default" checked><span>System cursor</span></label>
+      <label class="opt"><input type="radio" name="cursor" value="large"><span>Large cursor</span></label>
+      <label class="opt"><input type="radio" name="cursor" value="xlarge"><span>Extra large cursor</span></label>
+      <label class="opt"><input type="radio" name="cursor" value="contrast"><span>High contrast cursor <small>Yellow with a black outline</small></span></label>
+      <label class="opt"><input type="checkbox" id="optTrail"><span>Show a trail behind the cursor <small>Makes the pointer easier to follow</small></span></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Motion</legend>
+      <label class="opt"><input type="radio" name="motion" value="auto" checked><span>Match my device setting</span></label>
+      <label class="opt"><input type="radio" name="motion" value="slow"><span>Slow down animation</span></label>
+      <label class="opt"><input type="radio" name="motion" value="none"><span>Stop animation</span></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Button position</legend>
+      <p class="hint">You can also drag the grip at the top of this panel, or focus it and press the arrow keys.</p>
+      <label class="opt"><input type="radio" name="corner" value="br" checked><span>Bottom right</span></label>
+      <label class="opt"><input type="radio" name="corner" value="bl"><span>Bottom left</span></label>
+      <label class="opt"><input type="radio" name="corner" value="tr"><span>Top right</span></label>
+      <label class="opt"><input type="radio" name="corner" value="tl"><span>Top left</span></label>
+      <label class="opt"><input type="radio" name="corner" value="dock"><span>Keep it at the top of the page <small>Best when this page is embedded in another page, where a floating button can end up off screen</small></span></label>
+    </fieldset>
+
+    <button type="button" class="reset" id="a11yReset">Reset all display settings</button>
+  </div>
+</div>
+
+<p class="sr-only" role="status" aria-live="polite" id="a11yStatus"></p>
+
+<script>
+
+/* =========================================================================
+   MOCKUP BEHAVIOR: step tabs and sample button feedback
+   ========================================================================= */
+(function () {
+  "use strict";
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.step[role="tab"]'));
+  var pageStatus = document.getElementById('pageStatus');
+  function tell(msg) { var n = document.getElementById('mockNote'); n.textContent = msg; n.hidden = false; pageStatus.textContent = ''; window.setTimeout(function () { pageStatus.textContent = msg; }, 30); }
+
+  function select(tab, focus) {
+    tabs.forEach(function (t) {
+      var on = (t === tab);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (focus) tab.focus();
+  }
+  tabs.forEach(function (tab, i) {
+    tab.addEventListener('click', function () { select(tab, false); });
+    tab.addEventListener('keydown', function (e) {
+      var n = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') n = (i + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') n = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home') n = 0;
+      else if (e.key === 'End') n = tabs.length - 1;
+      if (n === null) return;
+      e.preventDefault();
+      select(tabs[n], true);
+    });
+  });
+  var VIEWS = { modeRec: 'recordedView', modeLive: 'liveView', modeStd: 'stdView' };
+  function setView(btnId) {
+    Object.keys(VIEWS).forEach(function (id) {
+      document.getElementById(id).setAttribute('aria-pressed', id === btnId ? 'true' : 'false');
+      document.getElementById(VIEWS[id]).hidden = (id !== btnId);
+    });
+  }
+  Object.keys(VIEWS).forEach(function (id) {
+    document.getElementById(id).addEventListener('click', function () { setView(id); });
+  });
+
+  var hash = (window.location.hash || '').replace('#', '');
+  if (hash === 'live') setView('modeLive');
+  if (hash === 'standards') setView('modeStd');
+  var fromHash = hash && document.getElementById('tab-' + hash);
+  if (fromHash) select(fromHash, false);
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('button') : null;
+    if (!b) return;
+    var target = b.getAttribute('data-approve');
+    if (target) {
+      var st = document.getElementById(target);
+      var approved = st.textContent.indexOf('Approved') === 0;
+      st.textContent = approved ? 'Draft' : 'Approved by you';
+      b.textContent = approved ? 'Approve' : 'Undo approval';
+      tell(approved ? 'Cue returned to draft' : 'Cue approved');
+      return;
+    }
+    if (b.id === 'btnSpeak') {
+      var on = b.getAttribute('aria-pressed') === 'true';
+      b.setAttribute('aria-pressed', on ? 'false' : 'true');
+      b.textContent = on ? 'Speak' : 'Stop listening';
+      tell(on ? 'Stopped listening' : 'Listening. This mockup does not record.');
+      return;
+    }
+    var notes = {
+      btnBrowse: 'Mockup only. The file picker opens here.',
+      btnSendIntent: 'Mockup only. Your answer is added to the conversation.',
+      btnEditIntent: 'Mockup only. These fields become editable.',
+      btnPlay: 'Mockup only. Video plays from this cue.',
+      btnHear: 'Mockup only. The description is read aloud with the local voice.',
+      btnShorten: 'Mockup only. A shorter draft that fits the gap is offered.',
+      btnExtend: 'Mockup only. This cue becomes an extended description that pauses the video.',
+      btnExport: 'Mockup only. Files are written to the folder you choose.',
+      btnLivePop: 'Mockup only. Captions open in a window you can resize and place over your slides.'
+    };
+    if (b.id === 'btnOpenStd') { setView('modeStd'); document.getElementById('modeStd').focus(); return; }
+    if (b.id === 'btnLiveStart') {
+      var live = b.getAttribute('aria-pressed') === 'true';
+      b.setAttribute('aria-pressed', live ? 'false' : 'true');
+      b.textContent = live ? 'Start session' : 'End session';
+      tell(live ? 'Session ended. This mockup does not record.' : 'Session started. This mockup does not listen or record.');
+      return;
+    }
+    if (b.id === 'btnCopyEmbed') {
+      var code = document.getElementById('embedCode');
+      var done = function () { tell('Embed code copied'); };
+      var fallback = function () {
+        var rg = document.createRange(); rg.selectNodeContents(code);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(rg);
+        tell('Embed code selected. Press copy on your keyboard.');
+      };
+      try { navigator.clipboard.writeText(code.textContent).then(done, fallback); } catch (err) { fallback(); }
+      return;
+    }
+    if (notes[b.id]) tell(notes[b.id]);
+  });
+})();
+
+
+/* =========================================================================
+   EMBEDDABLE PLAYER PREVIEW
+   A simulated 24-second video. Captions and descriptions are cue lists, the
+   same shape the real player reads from its WebVTT files. A description
+   longer than the pause holds the timeline while it is read (extended
+   audio description).
+   ========================================================================= */
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var DUR = 24;
+  var SCENES = [
+    { at: 0,  html: '<div><h4>Week 7: What does the team do?</h4></div>' },
+    { at: 8,  html: '<div><h4>Who is on the team?</h4><ul class="ap__roles"><li>Parent</li><li>General education teacher</li><li>Special education teacher</li><li class="me">Student</li><li>District representative</li><li>Evaluator</li></ul></div>' },
+    { at: 16, html: '<div><h4>Plans by district</h4><div class="ap__bars"><span style="height:100%"></span><span style="height:42%"></span></div></div>' }
+  ];
+  var CAPS = [
+    { s: 0.5,  e: 4.5,  t: 'Dr. Catrone: Welcome to week seven. Today: what does the team do?' },
+    { s: 8.5,  e: 12,   t: 'Dr. Catrone: As you can see here, each of these people has a job.' },
+    { s: 16.5, e: 19.5, t: 'Dr. Catrone: The gap is pretty clear.' }
+  ];
+  var DESCS = [
+    { s: 12.2, t: 'A diagram shows a student at the center, with five roles around them: parent, general education teacher, special education teacher, district representative, and evaluator.' },
+    { s: 19.8, t: 'A bar chart compares two groups of districts. The left bar is more than twice as tall as the right.' }
+  ];
+
+  var t = 0, playing = false, held = false, sceneIx = -1, last = 0, holdTimer = null, descTimer = null;
+  var fired = DESCS.map(function () { return false; });
+  var playBt = $('apPlay'), seek = $('apSeek'), cap = $('apCap'), desc = $('apDesc');
+  var on = { cap: true, speak: true, text: true, pause: true };
+  var synth = null;
+  try { synth = window.speechSynthesis || null; } catch (e) { synth = null; }
+
+  function fmt(x) { var s = Math.floor(x); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+
+  function render() {
+    var ix = 0;
+    SCENES.forEach(function (sc, i) { if (t >= sc.at) ix = i; });
+    if (ix !== sceneIx) { sceneIx = ix; $('apScene').innerHTML = SCENES[ix].html; }
+    var active = null;
+    CAPS.forEach(function (c) { if (t >= c.s && t < c.e) active = c; });
+    if (active && on.cap) { cap.textContent = active.t; cap.hidden = false; } else { cap.hidden = true; }
+    seek.value = t.toFixed(1);
+    seek.setAttribute('aria-valuetext', fmt(t) + ' of ' + fmt(DUR));
+    $('apTime').textContent = fmt(t) + ' / ' + fmt(DUR);
+  }
+
+  function stopSpeech() {
+    window.clearTimeout(holdTimer); holdTimer = null;
+    try { if (synth) synth.cancel(); } catch (e) {}
+    held = false;
+  }
+
+  function release() { window.clearTimeout(holdTimer); holdTimer = null; held = false; last = performance.now(); }
+
+  function runDesc(d) {
+    if (on.text) {
+      /* Screen reader users hear the text through the live region only when
+         the spoken track is off, so it is never read twice. */
+      desc.setAttribute('aria-live', on.speak ? 'off' : 'polite');
+      desc.textContent = 'Description: ' + d.t;
+      desc.hidden = false;
+      window.clearTimeout(descTimer);
+      descTimer = window.setTimeout(function () { desc.hidden = true; }, 12000);
+    }
+    if (!on.speak) return;
+    var rate = parseFloat($('apRate').value) || 1;
+    var est = (d.t.split(/\s+/).length / (2.6 * rate)) * 1000;
+    var hold = on.pause;
+    if (hold) { held = true; holdTimer = window.setTimeout(release, est * 1.6 + 1500); }
+    try {
+      if (!synth || typeof window.SpeechSynthesisUtterance !== 'function') throw new Error('no speech');
+      var u = new window.SpeechSynthesisUtterance(d.t);
+      u.rate = rate; u.lang = 'en-US';
+      if (hold) {
+        u.onend = release;
+        u.onerror = function () { window.clearTimeout(holdTimer); holdTimer = window.setTimeout(release, est); };
+      }
+      synth.speak(u);
+    } catch (e) {
+      if (hold) { window.clearTimeout(holdTimer); holdTimer = window.setTimeout(release, est); }
+    }
+  }
+
+  function tick(now) {
+    if (!playing) return;
+    if (!held) {
+      t = Math.min(DUR, t + (now - last) / 1000);
+      DESCS.forEach(function (d, i) { if (!fired[i] && t >= d.s) { fired[i] = true; runDesc(d); } });
+      render();
+      if (t >= DUR) { setPlaying(false); return; }
+    }
+    last = now;
+    window.requestAnimationFrame(tick);
+  }
+
+  function setPlaying(p) {
+    playing = p;
+    playBt.textContent = p ? 'Pause' : (t >= DUR ? 'Play again' : 'Play');
+    if (p) {
+      if (t >= DUR) jump(0);
+      last = performance.now();
+      window.requestAnimationFrame(tick);
+    } else { stopSpeech(); }
+  }
+
+  function jump(x) {
+    stopSpeech();
+    t = Math.max(0, Math.min(DUR, x));
+    fired = DESCS.map(function (d) { return d.s < t - 0.05; });
+    desc.hidden = true;
+    last = performance.now();
+    render();
+  }
+
+  playBt.addEventListener('click', function () { setPlaying(!playing); });
+  seek.addEventListener('input', function () { jump(parseFloat(seek.value)); });
+
+  [['apTCap', 'cap'], ['apTSpeak', 'speak'], ['apTText', 'text'], ['apTPause', 'pause']].forEach(function (pair) {
+    $(pair[0]).addEventListener('click', function (e) {
+      var b = e.currentTarget, v = b.getAttribute('aria-pressed') !== 'true';
+      b.setAttribute('aria-pressed', v ? 'true' : 'false');
+      on[pair[1]] = v;
+      if (pair[1] === 'speak' && !v) stopSpeech();
+      if (pair[1] === 'text' && !v) desc.hidden = true;
+      if (pair[1] === 'pause' && !v && held) release();
+      render();
+    });
+  });
+  $('apTTrans').addEventListener('click', function (e) {
+    var b = e.currentTarget, v = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', v ? 'true' : 'false');
+    $('apTrans').hidden = !v;
+  });
+
+  var list = $('apTransList');
+  CAPS.map(function (c) { return { s: c.s, k: 'Speech', t: c.t }; })
+    .concat(DESCS.map(function (d) { return { s: d.s, k: 'Description', t: d.t }; }))
+    .sort(function (a, b) { return a.s - b.s; })
+    .forEach(function (row) {
+      var li = document.createElement('li'), bt = document.createElement('button');
+      bt.type = 'button';
+      var k = document.createElement('span'); k.className = 'k';
+      k.textContent = fmt(row.s) + ' ' + row.k + '. ';
+      bt.appendChild(k); bt.appendChild(document.createTextNode(row.t));
+      bt.addEventListener('click', function () { jump(Math.max(0, row.s - 0.1)); });
+      li.appendChild(bt); list.appendChild(li);
+    });
+
+  render();
+})();
+
+/* =========================================================================
+   ACCESSIBILITY WIDGET
+   ========================================================================= */
+(function () {
+  "use strict";
+
+  var root    = document.documentElement;
+  var widget  = document.getElementById('a11yWidget');
+  var host    = document.getElementById('a11yHost');
+  var toggle  = document.getElementById('a11yToggle');
+  var panel   = document.getElementById('a11yPanel');
+  var closeBt = document.getElementById('a11yClose');
+  var grip    = document.getElementById('a11yGrip');
+  var resetBt = document.getElementById('a11yReset');
+  var status  = document.getElementById('a11yStatus');
+
+  var KEY = 'describe-studio-a11y-v1';
+
+  var DEFAULTS = {
+    textsize: '0', spacing: '0', palette: 'brand', cursor: 'default',
+    motion: 'auto', corner: 'br', dyslexic: false, trail: false,
+    x: null, y: null, cornerChosen: false
+  };
+  var state = Object.assign({}, DEFAULTS);
+
+  function save() {
+    try { window.localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function load() {
+    try {
+      var raw = window.localStorage.getItem(KEY);
+      if (raw) state = Object.assign({}, DEFAULTS, JSON.parse(raw));
+    } catch (e) { state = Object.assign({}, DEFAULTS); }
+  }
+
+  function say(msg) { status.textContent = msg; }
+
+  /* ---- Dock when floating is geometrically impossible -------------------
+     Canvas embeds this page in an auto-height iframe. In that situation the
+     viewport is as tall as the whole document, so a position:fixed element
+     pins to the very bottom of the page and is never visible while reading.
+     When we detect that, the widget moves into #a11yHost in the page flow.
+     An explicit user choice always wins over the detection.
+     ---------------------------------------------------------------------- */
+  function floatingIsUseless() {
+    var docH = Math.max(
+      document.documentElement.scrollHeight,
+      document.body ? document.body.scrollHeight : 0
+    );
+    return (window.innerHeight >= docH - 4);
+  }
+
+  function dock(on) {
+    if (on) {
+      if (widget.parentNode !== host) host.appendChild(widget);
+      widget.setAttribute('data-docked', 'yes');
+    } else {
+      if (widget.parentNode !== document.body) document.body.appendChild(widget);
+      widget.removeAttribute('data-docked');
+    }
+  }
+
+  function apply() {
+    root.setAttribute('data-textsize', state.textsize);
+    root.setAttribute('data-spacing',  state.spacing);
+    root.setAttribute('data-palette',  state.palette);
+    root.setAttribute('data-cursor',   state.cursor);
+    root.setAttribute('data-motion',   state.motion);
+    root.setAttribute('data-dyslexic', state.dyslexic ? 'on' : 'off');
+    root.setAttribute('data-trail',    state.trail ? 'on' : 'off');
+
+    var docked = (state.corner === 'dock') ||
+                 (!state.cornerChosen && state.x === null && floatingIsUseless());
+    dock(docked);
+
+    if (!docked && state.x !== null && state.y !== null) {
+      widget.removeAttribute('data-corner');
+      widget.style.insetBlockStart  = state.y + 'px';
+      widget.style.insetInlineStart = state.x + 'px';
+      widget.style.insetBlockEnd    = 'auto';
+      widget.style.insetInlineEnd   = 'auto';
+    } else {
+      widget.setAttribute('data-corner', state.corner === 'dock' ? 'br' : state.corner);
+      widget.style.insetBlockStart = '';
+      widget.style.insetInlineStart = '';
+      widget.style.insetBlockEnd = '';
+      widget.style.insetInlineEnd = '';
+    }
+
+    syncControls();
+    trailEnabled = state.trail;
+  }
+
+  function syncControls() {
+    ['textsize','spacing','palette','cursor','motion','corner'].forEach(function (name) {
+      var el = panel.querySelector('input[name="' + name + '"][value="' + state[name] + '"]');
+      if (el) el.checked = true;
+    });
+    document.getElementById('optDyslexic').checked = state.dyslexic;
+    document.getElementById('optTrail').checked    = state.trail;
+  }
+
+  function openPanel() {
+    panel.hidden = false;
+    toggle.setAttribute('aria-expanded', 'true');
+    closeBt.focus();
+  }
+  function closePanel(returnFocus) {
+    panel.hidden = true;
+    toggle.setAttribute('aria-expanded', 'false');
+    if (returnFocus !== false) toggle.focus();
+  }
+
+  toggle.addEventListener('click', function () {
+    if (justDragged) { justDragged = false; return; }
+    panel.hidden ? openPanel() : closePanel();
+  });
+  closeBt.addEventListener('click', function () { closePanel(); });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !panel.hidden) { e.preventDefault(); closePanel(); }
+  });
+
+  var LABELS = {
+    textsize: { '0':'Default text size', '1':'Large text', '2':'Larger text', '3':'Largest text' },
+    spacing:  { '0':'Default text spacing', '1':'Roomy text spacing', '2':'Widest text spacing' },
+    palette:  { brand:'Brand colors', cvd:'Color-vision friendly palette', mono:'Monochrome', hc:'High contrast' },
+    cursor:   { 'default':'System cursor', large:'Large cursor', xlarge:'Extra large cursor', contrast:'High contrast cursor' },
+    motion:   { auto:'Motion matches your device setting', slow:'Animation slowed', none:'Animation stopped' },
+    corner:   { br:'Button moved to bottom right', bl:'Button moved to bottom left', tr:'Button moved to top right', tl:'Button moved to top left', dock:'Button kept at the top of the page' }
+  };
+
+  panel.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.type === 'radio' && LABELS[t.name]) {
+      state[t.name] = t.value;
+      if (t.name === 'corner') { state.x = null; state.y = null; state.cornerChosen = true; }
+      apply(); save(); say(LABELS[t.name][t.value]);
+    }
+    if (t.id === 'optDyslexic') {
+      state.dyslexic = t.checked;
+      apply(); save(); say(t.checked ? 'OpenDyslexic font on' : 'OpenDyslexic font off');
+    }
+    if (t.id === 'optTrail') {
+      state.trail = t.checked;
+      apply(); save();
+      if (!t.checked) clearTrail();
+      say(t.checked ? 'Cursor trail on' : 'Cursor trail off');
+    }
+  });
+
+  resetBt.addEventListener('click', function () {
+    state = Object.assign({}, DEFAULTS);
+    clearTrail(); apply(); save();
+    say('All display settings reset to default');
+  });
+
+  /* ---- Move the widget: pointer drag + keyboard ------------------------ */
+  var dragging = false, justDragged = false, startX = 0, startY = 0, baseX = 0, baseY = 0;
+
+  function currentBox() { return widget.getBoundingClientRect(); }
+
+  function clampTo(x, y) {
+    var b = currentBox();
+    var maxX = Math.max(0, window.innerWidth  - b.width  - 4);
+    var maxY = Math.max(0, window.innerHeight - b.height - 4);
+    return { x: Math.min(Math.max(4, x), maxX), y: Math.min(Math.max(4, y), maxY) };
+  }
+
+  function moveTo(x, y) {
+    if (widget.getAttribute('data-docked') === 'yes') return;
+    var p = clampTo(x, y);
+    state.x = Math.round(p.x); state.y = Math.round(p.y); state.cornerChosen = true;
+    apply();
+  }
+
+  function startDrag(e) {
+    if (widget.getAttribute('data-docked') === 'yes') return;
+    var b = currentBox();
+    dragging = true; baseX = b.left; baseY = b.top;
+    startX = e.clientX; startY = e.clientY;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+  function onDrag(e) {
+    if (!dragging) return;
+    var dx = e.clientX - startX, dy = e.clientY - startY;
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) justDragged = true;
+    moveTo(baseX + dx, baseY + dy);
+    e.preventDefault();
+  }
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+    if (justDragged) { save(); say('Panel moved'); }
+    setTimeout(function () { justDragged = false; }, 0);
+  }
+
+  [grip, toggle].forEach(function (el) {
+    el.addEventListener('pointerdown', startDrag);
+    el.addEventListener('pointermove', onDrag);
+    el.addEventListener('pointerup', endDrag);
+    el.addEventListener('pointercancel', endDrag);
+  });
+
+  function nudge(e) {
+    var STEP = e.shiftKey ? 48 : 16;
+    var b = currentBox(), dx = 0, dy = 0;
+    if (e.key === 'ArrowLeft')  dx = -STEP;
+    else if (e.key === 'ArrowRight') dx = STEP;
+    else if (e.key === 'ArrowUp')    dy = -STEP;
+    else if (e.key === 'ArrowDown')  dy = STEP;
+    else return;
+    e.preventDefault();
+    moveTo(b.left + dx, b.top + dy);
+    save();
+  }
+  grip.addEventListener('keydown', nudge);
+  toggle.addEventListener('keydown', function (e) { if (e.altKey) nudge(e); });
+
+  window.addEventListener('resize', function () {
+    if (state.x !== null) { moveTo(state.x, state.y); save(); }
+    else { apply(); }
+  });
+
+  /* ---- Cursor trail ---------------------------------------------------- */
+  var trailEnabled = false, dots = [], MAX = 18, lastSpawn = 0;
+
+  function clearTrail() {
+    dots.forEach(function (d) { if (d.el.parentNode) d.el.parentNode.removeChild(d.el); });
+    dots = [];
+  }
+
+  document.addEventListener('pointermove', function (e) {
+    if (!trailEnabled || e.pointerType === 'touch') return;
+    var now = performance.now();
+    if (now - lastSpawn < 22) return;
+    lastSpawn = now;
+
+    var el = document.createElement('div');
+    el.className = 'trail-dot';
+    el.setAttribute('aria-hidden', 'true');
+    el.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px)';
+    document.body.appendChild(el);
+    dots.push({ el: el, born: now });
+
+    while (dots.length > MAX) {
+      var old = dots.shift();
+      if (old.el.parentNode) old.el.parentNode.removeChild(old.el);
+    }
+  }, { passive: true });
+
+  (function fade() {
+    var now = performance.now();
+    for (var i = dots.length - 1; i >= 0; i--) {
+      var age = now - dots[i].born, life = 620;
+      if (age >= life) {
+        if (dots[i].el.parentNode) dots[i].el.parentNode.removeChild(dots[i].el);
+        dots.splice(i, 1);
+      } else {
+        var k = 1 - age / life;
+        dots[i].el.style.opacity = k.toFixed(3);
+        dots[i].el.style.scale = (0.35 + 0.65 * k).toFixed(3);
+      }
+    }
+    requestAnimationFrame(fade);
+  })();
+
+  load();
+  apply();
+  window.setTimeout(apply, 400);
+})();
+
+</script>

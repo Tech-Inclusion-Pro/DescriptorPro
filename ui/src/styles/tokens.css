@@ -1,0 +1,232 @@
+/* Describe Studio theme tokens — Mycelium Filament (dark), matching Atrium.
+   Source values: atrium/src/renderer/src/styles/filament.css and the Atrium
+   Filament spec. Brand hues are fills/borders/gradients ONLY; text uses the
+   lifted tints (--brand-text-*). Display settings apply via data-* attributes
+   on <html>; all four palettes are built on the dark base. */
+
+@font-face {
+  font-family: 'OpenDyslexicLocal';
+  src: url('/fonts/OpenDyslexic-Regular.otf') format('opentype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexicLocal';
+  src: url('/fonts/OpenDyslexic-Bold.otf') format('opentype');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+
+/* --- Palettes ---------------------------------------------------------- */
+:root {
+  /* ground + surfaces (Filament) */
+  --bg:        #05040f;
+  --surface:   rgba(198, 164, 245, 0.06);
+  --tile:      rgba(10, 7, 24, 0.82);
+  --panel-solid: #0d0a1e;
+  --ink:       #f4f0fb;
+  --ink-soft:  #cbc2dd;
+  --line:      rgba(198, 164, 245, 0.26);
+  --line-hover: rgba(239, 154, 210, 0.6);
+
+  /* brand — fills, borders, gradients only */
+  --brand-1:   #3a2b95;
+  --brand-2:   #6f2fa6;
+  --brand-3:   #a23b84;
+  --on-brand:  #ffffff;
+
+  /* lifted tints — anything readable */
+  --brand-text-1: #a3abf8;
+  --brand-text-2: #c6a4f5;
+  --brand-text-3: #ef9ad2;
+
+  --accent:    #c6a4f5;
+  --focus:     #ef9ad2;
+  --focus-alt: #05040f;
+
+  --ok:        #8ad7a8;
+  --no:        #ff9fb0;
+
+  /* media wells (player, live captions) stay black with white text */
+  --media-bg:  #000000;
+  --media-ink: #ffffff;
+
+  /* filament weave texture */
+  --weave-1:   rgba(198, 164, 245, 0.14);
+  --weave-2:   rgba(239, 154, 210, 0.10);
+  --weave-dot: rgba(198, 164, 245, 0.5);
+  --bloom:     rgba(111, 47, 166, 0.32);
+
+  --radius: 10px;
+  --r-ctrl: 8px;
+  --dur: 200ms;
+  --fs: 1;
+  --lh: 1.6;
+  --ls: normal;
+  --ws: normal;
+  --para: 1em;
+}
+
+html[data-palette="cvd"] {
+  --brand-1: #00456e;
+  --brand-2: #1b6ea8;
+  --brand-3: #8a3d00;
+  --brand-text-1: #7cc4f0;
+  --brand-text-2: #9dd3f7;
+  --brand-text-3: #ffb380;
+  --accent:  #7cc4f0;
+  --focus:   #7cc4f0;
+  --surface: rgba(124, 196, 240, 0.07);
+  --tile:    rgba(7, 12, 24, 0.82);
+  --panel-solid: #0a1220;
+  --line:    rgba(124, 196, 240, 0.28);
+  --line-hover: rgba(255, 179, 128, 0.6);
+  --ok:      #7cc4f0;
+  --no:      #ffb380;
+  --weave-1: rgba(124, 196, 240, 0.12);
+  --weave-2: rgba(255, 179, 128, 0.08);
+  --weave-dot: rgba(124, 196, 240, 0.45);
+  --bloom:   rgba(27, 110, 168, 0.3);
+}
+
+html[data-palette="mono"] {
+  --bg:      #0b0b0b;
+  --surface: rgba(255, 255, 255, 0.06);
+  --tile:    rgba(18, 18, 18, 0.88);
+  --panel-solid: #141414;
+  --ink:     #f2f2f2;
+  --ink-soft:#c9c9c9;
+  --line:    rgba(255, 255, 255, 0.3);
+  --line-hover: rgba(255, 255, 255, 0.6);
+  --brand-1: #2a2a2a;
+  --brand-2: #3d3d3d;
+  --brand-3: #565656;
+  --brand-text-1: #e6e6e6;
+  --brand-text-2: #dcdcdc;
+  --brand-text-3: #ffffff;
+  --accent:  #e6e6e6;
+  --focus:   #ffffff;
+  --ok:      #f2f2f2;
+  --no:      #f2f2f2;
+  --weave-1: rgba(255, 255, 255, 0.07);
+  --weave-2: rgba(255, 255, 255, 0.05);
+  --weave-dot: rgba(255, 255, 255, 0.25);
+  --bloom:   rgba(255, 255, 255, 0.05);
+}
+
+html[data-palette="hc"] {
+  --bg:       #000000;
+  --surface:  #0d0d0d;
+  --tile:     #000000;
+  --panel-solid: #000000;
+  --ink:      #ffffff;
+  --ink-soft: #f2f2f2;
+  --line:     #ffffff;
+  --line-hover: #ffe500;
+  --brand-1:  #000000;
+  --brand-2:  #000000;
+  --brand-3:  #000000;
+  --on-brand: #ffe500;
+  --brand-text-1: #ffe500;
+  --brand-text-2: #ffe500;
+  --brand-text-3: #ffe500;
+  --accent:   #ffe500;
+  --focus:    #ffe500;
+  --focus-alt:#000000;
+  --ok:       #ffe500;
+  --no:       #ffe500;
+  --media-bg: #000000;
+  --media-ink:#ffffff;
+  --weave-1:  transparent;
+  --weave-2:  transparent;
+  --weave-dot: transparent;
+  --bloom:    transparent;
+}
+
+html[data-textsize="1"] { --fs: 1.15; }
+html[data-textsize="2"] { --fs: 1.30; }
+html[data-textsize="3"] { --fs: 1.50; }
+
+html[data-spacing="1"] { --lh: 1.7;  --ls: 0.06em; --ws: 0.10em; --para: 1.6em; }
+html[data-spacing="2"] { --lh: 1.85; --ls: 0.12em; --ws: 0.16em; --para: 2em;   }
+
+html[data-motion="slow"] { --dur: 900ms; }
+html[data-motion="none"] { --dur: 1ms; }
+@media (prefers-reduced-motion: reduce) {
+  html[data-motion="auto"] { --dur: 1ms; }
+}
+
+/* --- Base -------------------------------------------------------------- */
+* { box-sizing: border-box; }
+
+html { font-size: calc(100% * var(--fs)); background: var(--bg); }
+
+body {
+  margin: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: Arial, Helvetica, "Liberation Sans", sans-serif;
+  line-height: var(--lh);
+  letter-spacing: var(--ls);
+  word-spacing: var(--ws);
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Filament weave: corner bloom + diagonal crosshatch + spore dots.
+   Decorative only (pseudo-elements, pointer-events none, behind all content;
+   panes sit on .82 tiles so the weave is never behind body text). */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: -2;
+  pointer-events: none;
+  background: radial-gradient(60% 60% at 82% 26%, var(--bloom), transparent 68%);
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(58deg, var(--weave-1) 0 1px, transparent 1px 44px),
+    repeating-linear-gradient(-42deg, var(--weave-2) 0 1px, transparent 1px 62px),
+    radial-gradient(circle, var(--weave-dot) 0.8px, transparent 0.9px);
+  background-size: auto, auto, 26px 26px;
+}
+@media (forced-colors: active) {
+  body::before, body::after { display: none; }
+}
+
+html[data-dyslexic="on"] body,
+html[data-dyslexic="on"] button,
+html[data-dyslexic="on"] select,
+html[data-dyslexic="on"] input,
+html[data-dyslexic="on"] textarea,
+html[data-dyslexic="on"] summary {
+  font-family: 'OpenDyslexicLocal', 'OpenDyslexic', 'Comic Sans MS', Verdana, Tahoma, Arial, sans-serif;
+}
+
+p, li { margin-block-end: var(--para); }
+
+a { color: var(--brand-text-1); }
+html[data-palette="hc"] a { color: var(--accent); }
+a:hover { text-decoration-thickness: 3px; }
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+html[data-palette="hc"] :focus-visible { outline-color: var(--accent); }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+.skip {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--brand-1); color: var(--on-brand);
+  padding: .75rem 1.25rem; z-index: 100;
+  font-weight: bold; text-decoration: underline;
+}
+html[data-palette="hc"] .skip { background: var(--bg); color: var(--accent); border: 2px solid var(--accent); }
+.skip:focus { left: 0; }

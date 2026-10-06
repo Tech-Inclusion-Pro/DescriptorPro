@@ -28,3 +28,10 @@ LaMiaScribe
 
 # User data
 *.db
+
+# Describe Studio
+.venv/
+node_modules/
+ui/dist/
+ui/src/i18n/generated/
+ui/tsconfig.tsbuildinfo

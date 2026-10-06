@@ -1,0 +1,70 @@
+{
+  "app.tagline": "Captions, audio description, and image description, drafted on your own computer. By Tech Inclusion Pro.",
+  "app.local_chip": "Local only. Nothing leaves this computer.",
+  "app.cloud_chip": "Cloud: off",
+  "app.skip": "Skip to main content",
+  "app.service_connected": "Service connected",
+  "app.service_disconnected": "Service not connected",
+  "app.language": "Language",
+
+  "modes.label": "Way of working",
+  "modes.recorded": "Recorded media",
+  "modes.recorded_hint": "Draft, review, export",
+  "modes.live": "Live session",
+  "modes.live_hint": "Live captions and slide announcer",
+  "modes.standards": "Description standards",
+  "modes.standards_hint": "Ten criteria and their sources",
+
+  "steps.label": "Project steps",
+  "steps.media": "Add media",
+  "steps.intent": "Say what you want",
+  "steps.need": "Need check",
+  "steps.review": "Review",
+  "steps.export": "Export",
+  "steps.state.not_started": "Not started",
+  "steps.state.done": "Done",
+
+  "media.title": "Add media",
+  "media.lede": "Bring in a video, an audio file, or images. Choose what to make and where the processing happens.",
+  "media.drop": "Drop a file here",
+  "media.formats": "Video: MP4, MOV, MKV. Audio: MP3, WAV, M4A. Images: PNG, JPG, GIF, WebP. Slides: PDF, PPTX.",
+  "media.browse": "Browse for a file",
+
+  "intent.title": "Say what you want",
+  "intent.lede": "Before any model runs, tell the app about this video in your own words. Speak or type. Your answers steer every later step.",
+
+  "need.title": "Is audio description needed?",
+  "need.lede": "The app compared what is shown with what is said. Audio description is needed only where important visual information is not already in the audio. You make the final call on every segment.",
+
+  "review.title": "Review the draft",
+  "review.lede": "Every cue is a draft until a person approves it. Flags say where to look first. Each cue can be played, edited, and approved from the keyboard.",
+
+  "export.title": "Export",
+  "export.lede": "Choose the files you need. Every export carries a record of what was drafted by a model and what a person reviewed.",
+
+  "live.title": "Live session",
+  "live.lede": "Live captions and a slide-change announcer, both running on this computer. Live mode does not try to describe people or scenes as they happen. Local models are not yet fast or accurate enough for that.",
+
+  "standards.title": "Description standards",
+  "standards.lede": "Ten criteria for audio description, also called video description. Each one comes from an organization of people with disabilities, quoted and cited. The app checks its drafts against these, and this page ships inside the app.",
+
+  "debug.run_test_job": "Run a test job",
+  "debug.test_job_hint": "Exercises the job queue and progress stream. No models run.",
+
+  "a11y.open": "Display settings",
+  "a11y.close": "Close display settings",
+  "a11y.grip": "Move this panel. Drag with a pointer, or press the arrow keys while this button is focused.",
+  "a11y.textsize": "Text size",
+  "a11y.spacing": "Text spacing",
+  "a11y.color": "Color",
+  "a11y.color_hint": "These change the palette so colors stay separable. They do not simulate color blindness.",
+  "a11y.font": "Reading font",
+  "a11y.dyslexic": "OpenDyslexic font",
+  "a11y.dyslexic_hint": "Some readers prefer it. Research on whether it improves reading speed is mixed, so try it and keep it only if it helps you.",
+  "a11y.pointer": "Pointer",
+  "a11y.motion": "Motion",
+  "a11y.position": "Button position",
+  "a11y.position_hint": "You can also drag the grip at the top of this panel, or focus it and press the arrow keys.",
+  "a11y.reset": "Reset all display settings",
+  "a11y.reset_done": "All display settings reset to default"
+}

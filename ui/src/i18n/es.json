@@ -1,0 +1,70 @@
+{
+  "app.tagline": "Subtítulos, audiodescripción y descripción de imágenes, redactados en su propia computadora. De Tech Inclusion Pro.",
+  "app.local_chip": "Solo local. Nada sale de esta computadora.",
+  "app.cloud_chip": "Nube: apagada",
+  "app.skip": "Saltar al contenido principal",
+  "app.service_connected": "Servicio conectado",
+  "app.service_disconnected": "Servicio no conectado",
+  "app.language": "Idioma",
+
+  "modes.label": "Forma de trabajar",
+  "modes.recorded": "Medios grabados",
+  "modes.recorded_hint": "Redactar, revisar, exportar",
+  "modes.live": "Sesión en vivo",
+  "modes.live_hint": "Subtítulos en vivo y anunciador de diapositivas",
+  "modes.standards": "Normas de descripción",
+  "modes.standards_hint": "Diez criterios y sus fuentes",
+
+  "steps.label": "Pasos del proyecto",
+  "steps.media": "Agregar medios",
+  "steps.intent": "Diga lo que quiere",
+  "steps.need": "Verificación de necesidad",
+  "steps.review": "Revisar",
+  "steps.export": "Exportar",
+  "steps.state.not_started": "Sin empezar",
+  "steps.state.done": "Listo",
+
+  "media.title": "Agregar medios",
+  "media.lede": "Traiga un video, un archivo de audio o imágenes. Elija qué crear y dónde ocurre el procesamiento.",
+  "media.drop": "Suelte un archivo aquí",
+  "media.formats": "Video: MP4, MOV, MKV. Audio: MP3, WAV, M4A. Imágenes: PNG, JPG, GIF, WebP. Diapositivas: PDF, PPTX.",
+  "media.browse": "Buscar un archivo",
+
+  "intent.title": "Diga lo que quiere",
+  "intent.lede": "Antes de ejecutar cualquier modelo, cuéntele a la aplicación sobre este video con sus propias palabras. Hable o escriba. Sus respuestas guían cada paso posterior.",
+
+  "need.title": "¿Se necesita audiodescripción?",
+  "need.lede": "La aplicación comparó lo que se muestra con lo que se dice. La audiodescripción se necesita solo donde la información visual importante no está ya en el audio. Usted toma la decisión final en cada segmento.",
+
+  "review.title": "Revisar el borrador",
+  "review.lede": "Cada señal es un borrador hasta que una persona la aprueba. Las marcas indican dónde mirar primero. Cada señal se puede reproducir, editar y aprobar desde el teclado.",
+
+  "export.title": "Exportar",
+  "export.lede": "Elija los archivos que necesita. Cada exportación lleva un registro de lo que redactó un modelo y lo que revisó una persona.",
+
+  "live.title": "Sesión en vivo",
+  "live.lede": "Subtítulos en vivo y un anunciador de cambios de diapositiva, ambos en esta computadora. El modo en vivo no intenta describir personas ni escenas en el momento. Los modelos locales aún no son lo bastante rápidos ni precisos para eso.",
+
+  "standards.title": "Normas de descripción",
+  "standards.lede": "Diez criterios para la audiodescripción, también llamada descripción de video. Cada uno proviene de una organización de personas con discapacidad, citado con su fuente. La aplicación compara sus borradores con estas normas, y esta página se incluye en la aplicación.",
+
+  "debug.run_test_job": "Ejecutar un trabajo de prueba",
+  "debug.test_job_hint": "Ejercita la cola de trabajos y el flujo de progreso. No se ejecutan modelos.",
+
+  "a11y.open": "Ajustes de pantalla",
+  "a11y.close": "Cerrar ajustes de pantalla",
+  "a11y.grip": "Mueva este panel. Arrastre con el puntero o presione las flechas mientras este botón tiene el foco.",
+  "a11y.textsize": "Tamaño del texto",
+  "a11y.spacing": "Espaciado del texto",
+  "a11y.color": "Color",
+  "a11y.color_hint": "Cambian la paleta para que los colores sigan siendo distinguibles. No simulan el daltonismo.",
+  "a11y.font": "Fuente de lectura",
+  "a11y.dyslexic": "Fuente OpenDyslexic",
+  "a11y.dyslexic_hint": "Algunas personas la prefieren. La investigación sobre si mejora la velocidad de lectura no es concluyente; pruébela y consérvela solo si le ayuda.",
+  "a11y.pointer": "Puntero",
+  "a11y.motion": "Movimiento",
+  "a11y.position": "Posición del botón",
+  "a11y.position_hint": "También puede arrastrar el asa en la parte superior de este panel, o enfocarla y presionar las flechas.",
+  "a11y.reset": "Restablecer todos los ajustes de pantalla",
+  "a11y.reset_done": "Todos los ajustes de pantalla restablecidos"
+}
