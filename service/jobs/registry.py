@@ -164,9 +164,191 @@ async def transcribe_job(ctx, model_manager) -> dict:
         store.close()
 
 
+async def visual_track_job(ctx, model_manager) -> dict:
+    """Phase 2 visual track (spec §7.4): segment the video (no model),
+    OCR keyframes (tiny ONNX), then structured visual facts (vision model,
+    unloaded at stage end per §5.3). Stage outputs persist for resume."""
+    from service.projects import ProjectStore
+    from service.settings_store import library_dir, load_settings
+
+    store = ProjectStore(library_dir())
+    try:
+        project = store.load(ctx.job.project_id)
+        if project is None:
+            raise ValueError("Project not found.")
+        source = project["source"]["path"]
+        intent = project.get("intent") or {}
+        settings = load_settings()
+
+        # Stage 1: scenes + keyframes (model-free)
+        ctx.stage("segments")
+        segments_path = ctx.project_folder / "segments.json"
+        if segments_path.exists():
+            ctx.status("Video already segmented. Loading saved result.")
+            segments = json.loads(segments_path.read_text())
+        else:
+            from core.scenes import segment_video
+
+            segments = await asyncio.to_thread(
+                segment_video,
+                source,
+                ctx.project_folder / "frames",
+                intent.get("content_type") or "other",
+                progress=ctx,
+                cancel=ctx.cancel,
+            )
+            segments_path.write_text(json.dumps(segments, ensure_ascii=False))
+        ctx.percent(100)
+
+        # Stage 2: OCR (RapidOCR, in-process, no download)
+        ctx.stage("ocr")
+        ocr_path = ctx.project_folder / "ocr.json"
+        if ocr_path.exists():
+            ctx.status("Keyframes already read. Loading saved result.")
+            ocr_map = json.loads(ocr_path.read_text())
+        else:
+            from core.vision.ocr import ocr_text_lines
+
+            ocr_map: dict[str, list[str]] = {}
+            for i, seg in enumerate(segments):
+                ctx.cancel.raise_if_cancelled()
+                lines: list[str] = []
+                for frame in seg["keyframes"]:
+                    lines += await asyncio.to_thread(
+                        ocr_text_lines, str(ctx.project_folder / frame)
+                    )
+                ocr_map[seg["id"]] = lines
+                ctx.percent(min(int((i + 1) / max(len(segments), 1) * 100), 99))
+                ctx.status(f"Reading text on screen: part {i + 1} of {len(segments)}")
+            ocr_path.write_text(json.dumps(ocr_map, ensure_ascii=False))
+        for seg in segments:
+            seg["ocr_text"] = ocr_map.get(seg["id"], [])
+        ctx.percent(100)
+
+        # Stage 3: visual facts (vision model via Ollama)
+        ctx.stage("visual-facts")
+        facts_path = ctx.project_folder / "visual_facts.json"
+        if facts_path.exists():
+            ctx.status("Visual facts already drafted. Loading saved result.")
+            facts_map = json.loads(facts_path.read_text())
+            for seg in segments:
+                seg["visual_facts"] = facts_map.get(seg["id"], [])
+        else:
+            from core.engine.llm import LlmClient
+            from core.vision.facts import extract_segment_facts
+
+            model = settings["vision_model"]
+            client = LlmClient()
+            facts_map = {}
+            async with model_manager.use("ollama", model):
+                for i, seg in enumerate(segments):
+                    ctx.cancel.raise_if_cancelled()
+                    last = i == len(segments) - 1
+
+                    def generate(prompt: str, image_rel: str, _last=last) -> str:
+                        return client.generate_json(
+                            model,
+                            prompt,
+                            images=[str(ctx.project_folder / image_rel)],
+                            keep_alive=0 if _last else None,
+                        )
+
+                    await asyncio.to_thread(
+                        extract_segment_facts, seg, intent, generate
+                    )
+                    facts_map[seg["id"]] = seg["visual_facts"]
+                    ctx.percent(min(int((i + 1) / max(len(segments), 1) * 100), 99))
+                    ctx.status(f"Listing what is on screen: part {i + 1} of {len(segments)}")
+            facts_path.write_text(json.dumps(facts_map, ensure_ascii=False))
+        ctx.percent(100)
+
+        # Stage 4: save
+        ctx.stage("save")
+        project["segments"] = segments
+        prov = project.setdefault("provenance", {})
+        prov.setdefault("models", []).append(
+            {"role": "vision", "name": settings["vision_model"], "location": "local"}
+        )
+        store.save(project)
+        flagged = sum(1 for s in segments for f in s["visual_facts"] if f.get("flags"))
+        ctx.status(f"Done: {len(segments)} parts, {flagged} facts flagged for review.")
+        return {"segments": len(segments), "flagged_facts": flagged}
+    finally:
+        store.close()
+
+
+async def need_check_job(ctx, model_manager) -> dict:
+    """Phase 2 need check (spec §7.6) + coach (§7.7). Text model only."""
+    from core.engine.config import DEFAULT_CONFIG
+    from service.projects import ProjectStore
+    from service.settings_store import library_dir, load_settings
+
+    store = ProjectStore(library_dir())
+    try:
+        project = store.load(ctx.job.project_id)
+        if project is None:
+            raise ValueError("Project not found.")
+        segments = project.get("segments", [])
+        if not segments:
+            raise ValueError("Run the visual track first — there are no segments yet.")
+        cues = project.get("caption_cues", [])
+
+        from core.engine.llm import LlmClient
+        from core.need_check import add_coach_suggestion, check_segment, tally
+
+        settings = load_settings()
+        model = settings["text_model"]
+        client = LlmClient()
+        pad = DEFAULT_CONFIG.need_check.transcript_pad_seconds
+
+        ctx.stage("need-check")
+        async with model_manager.use("ollama", model):
+            for i, seg in enumerate(segments):
+                ctx.cancel.raise_if_cancelled()
+                last = i == len(segments) - 1
+
+                def generate(prompt: str, _last=last) -> str:
+                    return client.generate_json(model, prompt, keep_alive=0 if _last else None)
+
+                # Low-confidence captions inside the window make the
+                # transcript unreliable for this segment (spec §7.6.4).
+                reliable = not any(
+                    f["type"] == "low_confidence"
+                    for c in cues
+                    if c["end"] > seg["start"] - pad and c["start"] < seg["end"] + pad
+                    for f in c.get("flags", [])
+                )
+                await asyncio.to_thread(
+                    check_segment, seg, cues, generate, transcript_reliable=reliable
+                )
+                await asyncio.to_thread(add_coach_suggestion, seg, generate)
+                ctx.percent(min(int((i + 1) / len(segments) * 100), 99))
+                ctx.status(f"Checking part {i + 1} of {len(segments)}...")
+
+        ctx.stage("save")
+        project["segments"] = segments
+        prov = project.setdefault("provenance", {})
+        prov.setdefault("models", []).append(
+            {"role": "text", "name": model, "location": "local"}
+        )
+        counts = tally(segments)
+        prov["need_check"] = counts
+        store.save(project)
+        ctx.percent(100)
+        ctx.status(
+            f"Need check done: {counts['needed']} parts need description, "
+            f"{counts['uncertain']} uncertain, {counts['not_needed']} covered by the audio."
+        )
+        return counts
+    finally:
+        store.close()
+
+
 _HANDLERS: dict[str, JobHandler] = {
     "noop": noop_job,
     "transcribe": transcribe_job,
+    "visual_track": visual_track_job,
+    "need_check": need_check_job,
 }
 
 

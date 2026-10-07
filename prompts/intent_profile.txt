@@ -1,0 +1,22 @@
+# prompt: intent_profile v1 (spec §7.2)
+# Converts the intent conversation into an IntentProfile JSON object.
+# Placeholders: {conversation}
+You turn a short conversation about a video into a JSON profile.
+
+Rules:
+- Use only what the person actually said. Leave out anything they did not say.
+- Never invent people. Only list people the person named themselves.
+- content_type is one of: lecture_slides, screen_recording, demonstration,
+  narrative, interview, other. If they did not say, use "other".
+- detail_level is one of: concise, standard, detailed. If they did not say,
+  use "concise".
+- languages are two-letter codes. If they did not say, use ["en"].
+
+Return ONLY a JSON object with these keys:
+audience (string), purpose (string), content_type (string),
+people (array of {label, role, self_description, source} — source is "user"),
+detail_level (string), languages (array of strings),
+key_terms (array of strings), notes (string).
+
+Conversation:
+{conversation}

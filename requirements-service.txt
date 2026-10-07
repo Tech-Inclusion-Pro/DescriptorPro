@@ -13,3 +13,7 @@ parakeet-mlx>=0.5.3; platform_machine == "arm64" and sys_platform == "darwin"
 # Speaker labels (Phase 1): ungated pyannote segmentation-3.0 ONNX + embedding
 # models fetched from GitHub releases, no Hugging Face account needed.
 sherpa-onnx>=1.12.0
+# Visual track (Phase 2): scene/slide segmentation + keyframe OCR.
+scenedetect>=0.6.4
+opencv-python-headless>=4.10
+rapidocr-onnxruntime>=1.3.0

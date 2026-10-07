@@ -39,6 +39,31 @@ def unload_model(model: str) -> None:
 class LlmClient:
     """Ollama-based text processing. All methods are synchronous and Qt-free."""
 
+    def generate_json(
+        self,
+        model: str,
+        prompt: str,
+        images: list[str] | None = None,
+        keep_alive: int | None = None,
+    ) -> str:
+        """JSON-constrained generation (format=json); images for vision
+        models. Returns the raw JSON string — callers parse and validate.
+
+        Uses the chat endpoint: measured 2026-10-07, qwen3-vl via
+        ollama.generate(format="json") returns an empty response (thinking
+        swallows the budget) while ollama.chat(format="json") answers
+        correctly on the same prompt and image."""
+        import ollama
+
+        message: dict = {"role": "user", "content": prompt}
+        if images:
+            message["images"] = images
+        kwargs: dict = {"model": model, "messages": [message], "format": "json"}
+        if keep_alive is not None:
+            kwargs["keep_alive"] = keep_alive
+        response = ollama.chat(**kwargs)
+        return response["message"]["content"].strip()
+
     def _generate(self, model: str, prompt: str, keep_alive: int | None = None) -> str:
         import ollama
 

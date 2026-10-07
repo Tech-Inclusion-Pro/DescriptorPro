@@ -36,6 +36,22 @@ themselves are MIT / CC-BY-4.0. No Hugging Face account involved.
 | pyannote segmentation-3.0 (ONNX) | MIT (CNRS / pyannote) | k2-fsa GitHub releases | license notice crediting CNRS/pyannote |
 | NeMo TitaNet-small speaker embedding | CC-BY-4.0 (NVIDIA) | k2-fsa GitHub releases | attribution, as above |
 
+## Vision, OCR, and text reasoning (Phase 2)
+
+| Component | License | Source | Obligations |
+|---|---|---|---|
+| Qwen3-VL 8B (`qwen3-vl:8b`, vision facts) | Apache-2.0 (Alibaba/Qwen) | Ollama library | license notice |
+| Qwen3 8B (`qwen3:8b`, need check / coach / intent) | Apache-2.0 (Alibaba/Qwen) | Ollama library | license notice |
+| RapidOCR (runtime + bundled PaddleOCR models) | Apache-2.0 | PyPI (models ship in the wheel — no download) | license notice |
+| PySceneDetect | BSD-3-Clause | PyPI | license notice |
+| OpenCV (headless) | Apache-2.0 | PyPI | license notice |
+
+Decision 2026-10-07 (plan P2 VERIFY, Qwen3-VL tag): `qwen3-vl:8b` exists in
+the official Ollama library (requires Ollama ≥ 0.12.7; this machine runs
+newer). 8B q4_K_M ≈ 8–10 GB resident — fine alone under the §5.3
+one-model-at-a-time rule on the 18 GB M3. Fallback if it misbehaves:
+`qwen2.5vl:7b`.
+
 ## Fonts (Phase 0)
 
 | Component | License | Source | Obligations |

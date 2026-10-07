@@ -1,0 +1,21 @@
+# prompt: need_check_fact v1 (spec §7.6)
+# Narrow per-fact question for the text model.
+# Placeholders: {fact} {transcript}
+A video shows something on screen. Here is one visual fact, and what was
+said out loud around that moment.
+
+Visual fact: {fact}
+
+Spoken words: {transcript}
+
+Question: is the information in the visual fact stated or clearly conveyed
+by the spoken words? Someone listening without seeing the screen — do they
+get this information?
+
+Return ONLY a JSON object:
+{"answer": "covered" | "not_covered" | "unsure",
+ "evidence": "the exact spoken words that convey it, or empty string"}
+
+Rules: "covered" needs the actual information in the spoken words, not just
+a pointing phrase like "as you can see". If the spoken words only point at
+the screen, the answer is "not_covered". If you cannot tell, say "unsure".

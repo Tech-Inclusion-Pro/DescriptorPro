@@ -18,6 +18,8 @@ _ALLOWED_KEYS = {
     "whisper_model",
     "asr_engine",
     "parakeet_model",
+    "text_model",
+    "vision_model",
 }
 
 
@@ -39,6 +41,9 @@ def load_settings() -> dict:
     data.setdefault("whisper_model", "medium")
     data.setdefault("asr_engine", "whisper")  # "whisper" | "parakeet"
     data.setdefault("parakeet_model", "mlx-community/parakeet-tdt-0.6b-v3")
+    # Spec §5.2 defaults; both Apache-2.0, pulled through Ollama on demand.
+    data.setdefault("text_model", "qwen3:8b")
+    data.setdefault("vision_model", "qwen3-vl:8b")
     return data
 
 

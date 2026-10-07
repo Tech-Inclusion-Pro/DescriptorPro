@@ -55,3 +55,14 @@ live-mode phase timing (currently Phase 6).
    (pyannote segmentation-3.0 ONNX + NeMo TitaNet-small embedding) downloaded
    from GitHub releases on first use. No Hugging Face account involved.
    github.com release downloads added to the §13 allowlist for model fetches.
+
+10. **Qwen3-VL Ollama tag (plan P2 VERIFY — RESOLVED 2026-10-07).** Official
+    library tag `qwen3-vl:8b` (Apache-2.0, needs Ollama ≥ 0.12.7, ~8–10 GB
+    resident — fits the M3 alone under §5.3). Text role default `qwen3:8b`
+    per spec §5.2. Both pulled and verified live. Engineering notes from
+    verification: these are thinking models — `ollama.generate(format=json)`
+    returns empty, `ollama.chat(format=json)` works (LlmClient.generate_json
+    uses chat), and an occasional empty reply gets one retry. OCR is RapidOCR
+    (Apache-2.0, models bundled in the wheel, zero network). Slide-change
+    detection uses a 64×36 grid diff, not a 64-bit perceptual hash — measured:
+    the hash misses text-only slide changes entirely.

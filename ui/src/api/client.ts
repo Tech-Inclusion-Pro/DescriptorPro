@@ -79,6 +79,88 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ formats }),
     }),
+  getIntentQuestions: () =>
+    request<{ questions: Array<{ id: string; text: string; options?: string[] }> }>(
+      '/api/intent/questions',
+    ),
+  getIntent: (projectId: string) =>
+    request<{ intent: IntentProfile }>(`/api/projects/${projectId}/intent`),
+  putIntent: (projectId: string, intent: IntentProfile) =>
+    request<{ intent: IntentProfile }>(`/api/projects/${projectId}/intent`, {
+      method: 'PUT',
+      body: JSON.stringify({ intent }),
+    }),
+  converseIntent: (projectId: string, answers: Record<string, string>) =>
+    request<{ intent: IntentProfile }>(`/api/projects/${projectId}/intent/converse`, {
+      method: 'POST',
+      body: JSON.stringify({ answers }),
+    }),
+  getSegments: (projectId: string) =>
+    request<SegmentsReport>(`/api/projects/${projectId}/segments`),
+  patchDecision: (projectId: string, segmentId: string, value: string, by: string | null) =>
+    request<SegmentDecision>(`/api/projects/${projectId}/segments/${segmentId}/decision`, {
+      method: 'PATCH',
+      body: JSON.stringify({ value, by }),
+    }),
+}
+
+export interface IntentPerson {
+  label: string
+  role: string
+  self_description: string | null
+  source: string
+}
+
+export interface IntentProfile {
+  audience: string
+  purpose: string
+  content_type: string
+  people: IntentPerson[]
+  detail_level: string
+  languages: string[]
+  key_terms: string[]
+  notes: string
+}
+
+export interface VisualFact {
+  id: string
+  text: string
+  kind: string
+  essential: boolean
+  flags: Array<{ type: string; detail?: string }>
+  coverage?: { answer: string; evidence: string }
+}
+
+export interface SegmentDecision {
+  value: 'describe' | 'skip' | 'undecided'
+  by: string | null
+  at: string | null
+}
+
+export interface Segment {
+  id: string
+  start: number
+  end: number
+  keyframes: string[]
+  ocr_text: string[]
+  visual_facts: VisualFact[]
+  transcript_window: string
+  need: {
+    verdict: 'needed' | 'not_needed' | 'uncertain'
+    reason: string
+    uncovered_facts: string[]
+    criteria: string[]
+    deictic: string[]
+    coach: string | null
+  } | null
+  decision: SegmentDecision
+}
+
+export interface SegmentsReport {
+  segments: Segment[]
+  tally: { needed: number; not_needed: number; uncertain: number; unchecked: number }
+  standards_checked: string[]
+  notice: string
 }
 
 export interface CaptionCue {

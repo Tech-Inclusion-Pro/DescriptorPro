@@ -1,0 +1,30 @@
+# prompt: visual_facts v1 (spec §7.4–7.5)
+# Vision model prompt: one keyframe image attached, OCR text + intent given.
+# Placeholders: {ocr_text} {audience} {purpose} {content_type} {key_terms}
+List the visual facts in this frame as short, checkable statements.
+
+Context (from the person who made the video):
+- Audience: {audience}
+- Purpose: {purpose}
+- Content type: {content_type}
+- Key terms to spell exactly: {key_terms}
+
+Text already read from the frame by OCR:
+{ocr_text}
+
+Hard rules:
+- Each fact is ONE short sentence a person could verify by looking.
+- NEVER state or guess anyone's race, ethnicity, gender, age, disability,
+  health, religion, or relationships. Refer to people as "a person",
+  "a presenter", "a speaker".
+- NEVER name a person. Names only appear if they are visible as on-screen
+  text, and then the fact is about the text ("A name card reads ...").
+- Describe visible actions, not feelings or intentions.
+- No camera words ("the camera", "we see", "close-up").
+- Do not skip content because it is sensitive; state what is visible.
+- kind is one of: text, diagram, chart, action, person, setting.
+- essential means: someone who cannot see the frame would miss real
+  information without this fact.
+
+Return ONLY a JSON object: {"facts": [{"text": "...", "kind": "...",
+"essential": true}, ...]}. At most 8 facts. No other keys.

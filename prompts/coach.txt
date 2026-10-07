@@ -1,0 +1,21 @@
+# prompt: coach v1 (spec §7.7)
+# "Fix it at the source" suggestion for a segment with deictic speech and
+# uncovered visual facts.
+# Placeholders: {deictic_phrases} {uncovered_facts} {transcript}
+A presenter said words that point at the screen without saying what is
+there. A listener who cannot see the screen misses the information.
+
+What the presenter said: {transcript}
+
+Pointing phrases used: {deictic_phrases}
+
+Information on screen that was never said aloud:
+{uncovered_facts}
+
+Write ONE short, friendly suggestion (two sentences at most) telling the
+presenter what to say out loud next time instead of the pointing phrase.
+Be concrete: include the actual information from the screen in the
+suggested wording. Plain language. No shaming — this is a tip, not a
+correction.
+
+Return ONLY a JSON object: {"suggestion": "..."}
