@@ -84,3 +84,12 @@ live-mode phase timing (currently Phase 6).
     the common choice: it is AGPL and would contaminate the MIT app.
     PowerPoint/Keynote files are rejected at ingest with "export the deck
     to PDF first" guidance rather than adding a LibreOffice dependency.
+
+13. **Streaming ASR (plan P6 VERIFY — RESOLVED 2026-10-07).** Live captions
+    run on parakeet-mlx `transcribe_stream` — the already-downloaded
+    Parakeet TDT model, incremental, faster than realtime on the M3
+    (23.8 s audio in 15.2 s; measured lag median 500 ms at 0.5 s chunks,
+    832 ms at 1 s chunks over the websocket). WhisperKit rejected
+    (Swift-only, wrong fit for the Python service); Windows later rides
+    onnx-asr chunking behind the same LiveCaptioner interface. The UI
+    displays the measured delay rather than claiming a target.

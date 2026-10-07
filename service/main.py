@@ -66,6 +66,8 @@ def create_app(token: str, dev: bool = False) -> FastAPI:
     from service.routes.descriptions import router as descriptions_router
     from service.routes.images import router as images_router
     from service.routes.intent import router as intent_router
+    from service.routes.live import register_live_ws
+    from service.routes.live import router as live_router
     from service.routes.jobs import router as jobs_router
     from service.routes.projects import media_router
     from service.routes.projects import router as projects_router
@@ -80,12 +82,14 @@ def create_app(token: str, dev: bool = False) -> FastAPI:
     app.include_router(descriptions_router, prefix="/api")
     app.include_router(images_router, prefix="/api")
     app.include_router(intent_router, prefix="/api")
+    app.include_router(live_router, prefix="/api")
     app.include_router(segments_router, prefix="/api")
     app.include_router(settings_router, prefix="/api")
 
     from service.ws import register_ws
 
     register_ws(app)
+    register_live_ws(app)
 
     if UI_DIST.is_dir():
         app.mount("/ui", StaticFiles(directory=UI_DIST, html=True), name="ui")
