@@ -30,6 +30,7 @@ Hard rules:
   once; prefer stating the content directly.
 - Quote on-screen text exactly as written above.
 {budget_line}
+{language_line}
 
 Return ONLY a JSON object:
 {"full": "the description",

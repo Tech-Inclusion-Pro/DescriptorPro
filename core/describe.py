@@ -26,6 +26,19 @@ def _uncovered_facts(segment: dict) -> list[dict]:
     return facts
 
 
+LANGUAGE_NAMES = {"es": "Spanish", "en": "English", "fr": "French", "pt": "Portuguese", "de": "German"}
+
+
+def language_line(intent: dict) -> str:
+    """Spanish parity (plan P7): drafts come out in the project's first
+    intent language. English needs no directive."""
+    lang = (intent.get("languages") or ["en"])[0].split("-")[0]
+    if lang == "en":
+        return ""
+    name = LANGUAGE_NAMES.get(lang, lang)
+    return f"- Write the description in {name}. Quote on-screen text exactly as written, untranslated."
+
+
 def draft_prompt(segment: dict, intent: dict, budget: int) -> str:
     facts = _uncovered_facts(segment)
     budget_line = (
@@ -44,6 +57,7 @@ def draft_prompt(segment: dict, intent: dict, budget: int) -> str:
         key_terms=", ".join(intent.get("key_terms") or []) or "(none)",
         word_budget=str(budget),
         budget_line=budget_line,
+        language_line=language_line(intent),
     )
 
 

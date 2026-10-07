@@ -32,6 +32,8 @@ Hard rules:
   (a divider, a texture, a stock flourish), and give the reason. A person
   makes the final call, never you.
 
+{language_line}
+
 Return ONLY a JSON object:
 {"alt": "...", "long_description": "...", "kind": "...",
  "decorative": {"suggested": false, "reason": "..."}}

@@ -132,6 +132,8 @@ def describe_image(
 
     item["ocr_text"] = ocr_text_lines(str(image_path))
 
+    from core.describe import language_line
+
     prompt = render_prompt(
         "image_description",
         ocr_text="\n".join(f"- {line}" for line in item["ocr_text"]) or "(none found)",
@@ -139,6 +141,7 @@ def describe_image(
         purpose=intent.get("purpose") or "(not stated)",
         detail_level=intent.get("detail_level") or "concise",
         key_terms=", ".join(intent.get("key_terms") or []) or "(none)",
+        language_line=language_line(intent),
     )
     parsed = parse_image_description(generate_vision_json(prompt, str(image_path)))
     if parsed is None:

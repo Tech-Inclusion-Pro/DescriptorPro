@@ -20,3 +20,4 @@ rapidocr-onnxruntime>=1.3.0
 # Described video narration (Phase 4): Kokoro TTS on onnxruntime,
 # espeak-ng bundled via espeakng_loader — no system install.
 kokoro-onnx>=0.4.0
+keyring>=25.0

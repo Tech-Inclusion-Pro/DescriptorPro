@@ -63,6 +63,7 @@ def create_app(token: str, dev: bool = False) -> FastAPI:
         return {"stopping": True}
 
     from service.routes.captions import router as captions_router
+    from service.routes.cloud import router as cloud_router
     from service.routes.descriptions import router as descriptions_router
     from service.routes.images import router as images_router
     from service.routes.intent import router as intent_router
@@ -79,6 +80,7 @@ def create_app(token: str, dev: bool = False) -> FastAPI:
     app.include_router(projects_router, prefix="/api")
     app.include_router(jobs_router, prefix="/api")
     app.include_router(captions_router, prefix="/api")
+    app.include_router(cloud_router, prefix="/api")
     app.include_router(descriptions_router, prefix="/api")
     app.include_router(images_router, prefix="/api")
     app.include_router(intent_router, prefix="/api")
