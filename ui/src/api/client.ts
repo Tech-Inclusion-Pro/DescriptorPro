@@ -102,6 +102,20 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify({ value, by }),
     }),
+  getStandards: () => request<StandardsDoc>('/api/standards'),
+  getDescriptions: (projectId: string) =>
+    request<{ cues: DescriptionCue[]; ad_style: string; added_running_time: number }>(
+      `/api/projects/${projectId}/descriptions`,
+    ),
+  patchDescription: (
+    projectId: string,
+    cueId: string,
+    body: { text?: string; use?: 'suggested' | 'full' | 'short'; approve?: boolean; reviewer?: string },
+  ) =>
+    request<DescriptionCue>(`/api/projects/${projectId}/descriptions/${cueId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
 }
 
 export interface IntentPerson {
@@ -161,6 +175,44 @@ export interface SegmentsReport {
   tally: { needed: number; not_needed: number; uncertain: number; unchecked: number }
   standards_checked: string[]
   notice: string
+}
+
+export interface DescriptionCue {
+  id: string
+  segment: string
+  start: number
+  gap: number
+  text: string
+  full_text: string
+  short_text: string
+  suggested_text?: string
+  est_duration: number
+  mode: 'inline' | 'extended'
+  placement: 'in_gap' | 'before_content'
+  voice: { kind: string; clip: string | null }
+  flags: Array<{ type: string; detail?: string }>
+  criteria: string[]
+  verification?: { checked: boolean; claims: Array<{ text: string; verdict: string }> }
+  status: 'draft' | 'approved'
+  approved_by: string | null
+  approved_at: string | null
+  lang: string
+}
+
+export interface StandardsDoc {
+  version: string
+  quotes_verified: boolean
+  verification_notice: string
+  criteria: Array<{
+    id: string
+    name: string
+    plain_rule: string
+    quote: string
+    source_ids: string[]
+    app_behavior: string
+    flag_types: string[]
+  }>
+  sources: Array<{ id: string; apa: string; led_by: string; leadership_note: string }>
 }
 
 export interface CaptionCue {

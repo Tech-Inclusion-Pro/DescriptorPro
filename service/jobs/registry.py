@@ -344,11 +344,132 @@ async def need_check_job(ctx, model_manager) -> dict:
         store.close()
 
 
+async def describe_job(ctx, model_manager) -> dict:
+    """Phase 3 (spec §7.8–7.10): draft descriptions for segments a person
+    marked `describe`, then verify each draft against its keyframe. Text
+    stage runs fully before the vision stage so the models never co-reside
+    (§5.3)."""
+    from service.projects import ProjectStore
+    from service.settings_store import library_dir, load_settings
+
+    store = ProjectStore(library_dir())
+    try:
+        project = store.load(ctx.job.project_id)
+        if project is None:
+            raise ValueError("Project not found.")
+        segments = project.get("segments", [])
+        to_describe = [s for s in segments if (s.get("decision") or {}).get("value") == "describe"]
+        if not to_describe:
+            raise ValueError(
+                "No parts are marked \"Describe it\" yet. Decide on the need-check step first."
+            )
+
+        from core.describe import draft_description
+        from core.engine.llm import LlmClient
+        from core.gapfit import added_running_time, build_gap_list
+        from core.verify import verify_description
+
+        settings = load_settings()
+        client = LlmClient()
+        intent = project.get("intent") or {}
+        ad_style = project.get("ad_style") or "standard"
+        language = (intent.get("languages") or ["en"])[0]
+        cues = project.get("caption_cues", [])
+        duration = float(project.get("source", {}).get("duration") or 0.0)
+        gaps = build_gap_list(cues, duration)
+
+        # Stage 1: draft (text model)
+        ctx.stage("draft")
+        drafts_path = ctx.project_folder / "description_drafts.json"
+        if drafts_path.exists():
+            ctx.status("Descriptions already drafted. Loading saved result.")
+            description_cues = json.loads(drafts_path.read_text())
+        else:
+            text_model = settings["text_model"]
+            description_cues = []
+            async with model_manager.use("ollama", text_model):
+                for i, seg in enumerate(to_describe):
+                    ctx.cancel.raise_if_cancelled()
+                    last = i == len(to_describe) - 1
+
+                    def generate(prompt: str, _last=last) -> str:
+                        return client.generate_json(text_model, prompt, keep_alive=0 if _last else None)
+
+                    cue = await asyncio.to_thread(
+                        draft_description,
+                        seg, intent, gaps, ad_style, len(description_cues) + 1,
+                        generate, language,
+                    )
+                    if cue is not None:
+                        description_cues.append(cue)
+                    ctx.percent(min(int((i + 1) / len(to_describe) * 100), 99))
+                    ctx.status(f"Drafting description {i + 1} of {len(to_describe)}...")
+            drafts_path.write_text(json.dumps(description_cues, ensure_ascii=False))
+        ctx.percent(100)
+
+        # Stage 2: verify (vision model)
+        ctx.stage("verify")
+        verified_path = ctx.project_folder / "description_verified.json"
+        if verified_path.exists():
+            ctx.status("Drafts already verified. Loading saved result.")
+            description_cues = json.loads(verified_path.read_text())
+        else:
+            vision_model = settings["vision_model"]
+            by_id = {s["id"]: s for s in segments}
+            async with model_manager.use("ollama", vision_model):
+                for i, cue in enumerate(description_cues):
+                    ctx.cancel.raise_if_cancelled()
+                    last = i == len(description_cues) - 1
+                    seg = by_id.get(cue["segment"])
+
+                    def generate(prompt: str, image_rel: str, _last=last) -> str:
+                        return client.generate_json(
+                            vision_model, prompt,
+                            images=[str(ctx.project_folder / image_rel)],
+                            keep_alive=0 if _last else None,
+                        )
+
+                    if seg is not None:
+                        await asyncio.to_thread(verify_description, cue, seg, generate)
+                    ctx.percent(min(int((i + 1) / max(len(description_cues), 1) * 100), 99))
+                    ctx.status(f"Checking draft {i + 1} of {len(description_cues)} against the video...")
+            verified_path.write_text(json.dumps(description_cues, ensure_ascii=False))
+        ctx.percent(100)
+
+        # Stage 3: save
+        ctx.stage("save")
+        project["description_cues"] = description_cues
+        project["ad_style"] = ad_style
+        prov = project.setdefault("provenance", {})
+        prov.setdefault("models", []).append(
+            {"role": "description", "name": settings["text_model"], "location": "local"}
+        )
+        prov["descriptions"] = {
+            "drafted_by": "model",
+            "cues": len(description_cues),
+            "approved": 0,
+            "flagged_open": sum(1 for c in description_cues if c["flags"]),
+            "style": ad_style,
+            "added_running_time": added_running_time(description_cues),
+        }
+        store.save(project)
+        extended = sum(1 for c in description_cues if c["mode"] == "extended")
+        ctx.status(
+            f"Done: {len(description_cues)} descriptions drafted and checked"
+            + (f", {extended} extended (adds {added_running_time(description_cues):.0f} s)" if extended else "")
+            + "."
+        )
+        return {"cues": len(description_cues), "extended": extended}
+    finally:
+        store.close()
+
+
 _HANDLERS: dict[str, JobHandler] = {
     "noop": noop_job,
     "transcribe": transcribe_job,
     "visual_track": visual_track_job,
     "need_check": need_check_job,
+    "describe": describe_job,
 }
 
 

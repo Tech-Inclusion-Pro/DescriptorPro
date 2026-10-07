@@ -1,0 +1,36 @@
+# prompt: describe v1 (spec §7.8, DS-1/2/5)
+# Drafts one audio description for a segment the user marked "describe".
+# Placeholders: {facts} {ocr_text} {transcript} {audience} {detail_level}
+#               {key_terms} {word_budget} {budget_line}
+Write an audio description: the words a narrator speaks so someone who
+cannot see the screen gets the visual information.
+
+Information on screen that the audio does not carry (most important first):
+{facts}
+
+Text visible on screen (exact spelling):
+{ocr_text}
+
+What is being said aloud around this moment (do not repeat it):
+{transcript}
+
+Audience: {audience}
+Detail level: {detail_level}
+Terms to spell exactly: {key_terms}
+
+Hard rules:
+- Present tense. Plain words this audience understands on first hearing.
+- Most essential information first.
+- Only the information listed above. Do not add anything you were not given.
+- Never state or guess race, ethnicity, gender, age, disability, health,
+  religion, or relationships. "A person", "a presenter".
+- No names unless they appear in the on-screen text above.
+- Describe visible actions, not feelings or motives.
+- No camera language. Do not say "we see" or "the slide shows" more than
+  once; prefer stating the content directly.
+- Quote on-screen text exactly as written above.
+{budget_line}
+
+Return ONLY a JSON object:
+{"full": "the description",
+ "short": "a tighter version within the word budget, or the same text if it already fits"}

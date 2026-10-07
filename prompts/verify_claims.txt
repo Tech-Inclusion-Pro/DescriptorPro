@@ -1,0 +1,21 @@
+# prompt: verify_claims v1 (spec §7.9, DS-3)
+# Second, separate pass: the vision model judges each claim in a draft
+# against the keyframe image and OCR text. A wrong description is worse
+# than none.
+# Placeholders: {draft} {ocr_text}
+You are checking an audio description against the frame it describes.
+The image is attached. Text read from the frame by OCR:
+{ocr_text}
+
+The description to check:
+{draft}
+
+Split the description into its individual factual claims. For each claim,
+judge it against the image and the OCR text only — not against what would
+be plausible:
+- "supported": the image or OCR text clearly shows it.
+- "contradicted": the image or OCR text shows otherwise.
+- "cannot_confirm": the image does not settle it.
+
+Return ONLY a JSON object:
+{"claims": [{"text": "the claim", "verdict": "supported|contradicted|cannot_confirm"}, ...]}

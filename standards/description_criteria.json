@@ -1,0 +1,129 @@
+{
+  "version": "2026-10-07",
+  "quotes_verified": false,
+  "verification_notice": "These quotations were gathered through an automated page reader and have not yet been checked line by line against the original documents. Until that check is recorded here, treat the plain-language rule as the working text and the quotation as a pointer to the source.",
+  "criteria": [
+    {
+      "id": "DS-1",
+      "name": "Describe what is essential first",
+      "plain_rule": "Choose the visual information a viewer needs to understand and appreciate the content. Leave the rest.",
+      "quote": "Describe what is most essential for the viewer to know in order to understand and appreciate the image.",
+      "source_ids": ["acb-adp-2009"],
+      "app_behavior": "The need check ranks visual information by whether the audio already carries it; the intent profile sets what essential means for this audience. Drafts open with the most essential uncovered fact.",
+      "flag_types": ["nonessential_detail"]
+    },
+    {
+      "id": "DS-2",
+      "name": "Say what you see, without interpreting",
+      "plain_rule": "Describe the visible action, not the inferred feeling or motive. He clenches his fist - not he is furious.",
+      "quote": "What you see is what you say. Describe objectively without personal interpretation, censorship, or comment.",
+      "source_ids": ["acb-adp-2009", "dcmp-key"],
+      "app_behavior": "The drafting prompt forbids inferred emotion and motive, and guardrails flag interpretation words in every draft. Nothing is rewritten silently.",
+      "flag_types": ["interpretation"]
+    },
+    {
+      "id": "DS-3",
+      "name": "Be accurate",
+      "plain_rule": "Every stated detail must be checkable against the screen. Wrong words are worse than missing words.",
+      "quote": "There must be no errors in word selection, pronunciation, diction, or enunciation.",
+      "source_ids": ["dcmp-key"],
+      "app_behavior": "A second verification pass checks each claim in a draft against the keyframes and OCR text. Contradicted claims are struck out of the suggestion; unconfirmed claims are flagged, never smoothed over.",
+      "flag_types": ["unverified_claim", "contradicted"]
+    },
+    {
+      "id": "DS-4",
+      "name": "Respect the soundtrack",
+      "plain_rule": "Do not fill every pause. Description never talks over speech, and silence can carry meaning too.",
+      "quote": "Do not be tempted to fill every pause. Allow the atmosphere and background noise to come through.",
+      "source_ids": ["adi-2003"],
+      "app_behavior": "Gap fitting places descriptions only in real pauses between words. A description is never placed over speech automatically.",
+      "flag_types": ["too_long_for_gap"]
+    },
+    {
+      "id": "DS-5",
+      "name": "Use clear, concise language for this audience",
+      "plain_rule": "Write so it is understood the first time it is heard, by the audience this video is for.",
+      "quote": "Write simply, clearly and concisely. Ensure your description is easy to comprehend the first time it is heard.",
+      "source_ids": ["adi-2003"],
+      "app_behavior": "The intent profile's audience and detail level set vocabulary and length. Concise is the default.",
+      "flag_types": []
+    },
+    {
+      "id": "DS-6",
+      "name": "Describe people equitably",
+      "plain_rule": "Never guess identity from appearance. If physical characteristics are described at the user's request, describe them for everyone on screen or for no one.",
+      "quote": "Citing the race only of non-white individuals establishes 'white' as a default and is unacceptable. Do not make assumptions as to someone's race.",
+      "source_ids": ["acb-adp-2009", "dcmp-key"],
+      "app_behavior": "Guardrails block inferred race, ethnicity, gender, age, disability, health, religion, and relationships in visual facts and drafts. Names and self-descriptions come only from the user or from on-screen text, and carry a flag naming their source.",
+      "flag_types": ["identity_inference", "name_from_user", "name_from_screen"]
+    },
+    {
+      "id": "DS-7",
+      "name": "Give equal access to meaning, at the same moment",
+      "plain_rule": "When pausing the video is possible, describe the visual before it is discussed, so a blind viewer gets the information when their classmates do.",
+      "quote": "When expanded description is a technical option, provide description before the content rather than after.",
+      "source_ids": ["dcmp-key"],
+      "app_behavior": "The extended-before-content style places every description at the start of its segment and the player pauses for it.",
+      "flag_types": []
+    },
+    {
+      "id": "DS-8",
+      "name": "Treat the voice as part of access",
+      "plain_rule": "Synthetic narration is disclosed everywhere it is used, and any cue can be replaced with a recorded human voice.",
+      "quote": "Human-voiced Audio Description remains the gold standard.",
+      "source_ids": ["acb-tts"],
+      "app_behavior": "Every export and the player state when a synthetic voice reads descriptions. Each description cue accepts a recorded human clip in place of synthesis.",
+      "flag_types": []
+    },
+    {
+      "id": "DS-9",
+      "name": "Put blind and low vision people in the review",
+      "plain_rule": "The people the description serves belong in the review path, as reviewers - not as an afterthought.",
+      "quote": "Get feedback.",
+      "source_ids": ["acb-adp-2009", "acb-tts"],
+      "app_behavior": "The review editor is fully operable by keyboard and screen reader. Provenance names the reviewer on every export; quick mode is permanently stamped unreviewed.",
+      "flag_types": []
+    },
+    {
+      "id": "DS-10",
+      "name": "Protect the images people share",
+      "plain_rule": "Images and frames processed for description stay on this computer unless the user explicitly sends them elsewhere.",
+      "quote": "Implement sensible protections that prevent images taken, imported, or otherwise collected for the purpose of providing visual descriptions to the blind from being stored, disseminated, or otherwise misused.",
+      "source_ids": ["nfb-2024-08"],
+      "app_behavior": "All processing is local by default. Cloud is opt-in per project and per stage, with a preview of exactly what would be sent.",
+      "flag_types": []
+    }
+  ],
+  "sources": [
+    {
+      "id": "acb-adp-2009",
+      "apa": "American Council of the Blind, Audio Description Project. (2009). Audio description standards: A work in progress. https://adp.acb.org/docs/ADP_Standards.pdf",
+      "led_by": "blind-led",
+      "leadership_note": "ACB is blind-led; its constitution provides that members of the Board of Directors shall be legally blind (exact Article IV wording pending verification)."
+    },
+    {
+      "id": "nfb-2024-08",
+      "apa": "National Federation of the Blind. (2024). Resolution 2024-08 regarding visual interpretation services and image privacy. https://nfb.org",
+      "led_by": "blind-led",
+      "leadership_note": "\"We are blind people, from our democratically elected leaders to our diverse nationwide membership.\""
+    },
+    {
+      "id": "dcmp-key",
+      "apa": "Described and Captioned Media Program. (n.d.). Description key. https://dcmp.org/learn/descriptionkey",
+      "led_by": "deaf-led",
+      "leadership_note": "Administered by the National Association of the Deaf (\"of, by and for deaf and hard of hearing individuals\") - Deaf-led, not blind-led. The Description Key was developed with the American Foundation for the Blind."
+    },
+    {
+      "id": "adi-2003",
+      "apa": "Audio Description International, Guidelines Committee. (2003). Guidelines for audio description. Published by the ACB Audio Description Project.",
+      "led_by": "unconfirmed",
+      "leadership_note": "Leadership composition not confirmed; the guidelines are published by the blind-led ACB Audio Description Project."
+    },
+    {
+      "id": "acb-tts",
+      "apa": "American Council of the Blind. (n.d.). Guidelines on text-to-speech audio description. https://adp.acb.org",
+      "led_by": "blind-led",
+      "leadership_note": "Calls for quality review that includes blind and low-vision professionals."
+    }
+  ]
+}
