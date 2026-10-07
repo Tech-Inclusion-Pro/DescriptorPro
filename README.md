@@ -66,7 +66,7 @@ The drafting and flag system check against ten description criteria sourced from
 
 ## Architecture
 
-- **Engine:** Python. Shared, Qt-free pipeline code in `core/engine/` (and, as phases land: `core/asr/`, `core/vision/`, `need_check`, `describe`, `verify`, `gapfit`, `guardrails`).
+- **Engine:** Python. Shared, Qt-free pipeline code in `core/engine/`, with speech backends in `core/asr/`, forced alignment and speaker labels (`core/align.py`, `core/diarize.py`), the visual track in `core/scenes.py` + `core/vision/`, and the intent, guardrails, and need-check logic in `core/intent.py`, `core/guardrails.py`, `core/need_check.py` (description drafting lands with Phase 3).
 - **Service:** FastAPI (`service/`), bound to `127.0.0.1` only, with a per-launch token, OS-assigned port, resumable jobs, and websocket progress. Models load one at a time to fit 16–18 GB machines.
 - **UI:** React + TypeScript + Vite (`ui/`), Mycelium Filament dark theme, WCAG 2.1 AA as the floor. A display-settings widget (text size, spacing, four palettes, OpenDyslexic, pointer, motion) is built in; choices persist on your device.
 - **Shell:** a thin Electron wrapper (`shell/`) that starts the service and enforces loopback-only networking.
@@ -87,23 +87,39 @@ tests/         pytest suite (engine, service) + UI tests with axe
 
 ## Status
 
-**Phase 0 (foundation) is complete.** The service, job runner, UI shell, display-settings widget, and Electron wrapper are built and tested (pytest + vitest with automated axe accessibility checks). The AI pipeline lands phase by phase, each gated on acceptance checks including manual screen-reader testing:
+**Phases 0–2 are complete.** The pipeline today takes a video from upload through captions (with speaker labels and word-level flags), the intent conversation, the visual track, and a cited per-segment need check with recorded human decisions. Each phase is gated on acceptance checks including manual screen-reader testing:
 
-| Phase | Scope |
-|---|---|
-| 1 | Captions: VAD, word-level timing and confidence, DCMP/FCC formatting, caption review, per-group accuracy reporting |
-| 2 | Intent conversation, scene/slide detection, OCR, visual facts with identity guardrails, the need check |
-| 3 | Description drafting, verification pass, gap fitting, the three AD styles, the standards view |
-| 4 | Exports: descriptions VTT, Panopto quick mode, described transcript and MP4, the embeddable accessible player |
-| 5 | Image and slide description with batch review |
-| 6 | Live captions and slide-change announcer |
-| 7 | Spanish parity, 23-language UI, cloud BYOK, installers |
+| Phase | Scope | |
+|---|---|---|
+| 0 | Foundation: local service, resumable jobs, UI shell, display-settings widget, Electron loopback enforcement | ✅ |
+| 1 | Captions: Silero VAD, two ASR engines (faster-whisper + Parakeet on Apple Silicon), word-level timing and confidence, forced alignment, DCMP/FCC formatting, speaker labels, caption review, VTT/SRT with provenance, per-group accuracy harness | ✅ |
+| 2 | Intent conversation with editable profile, scene/slide detection, OCR, structured visual facts with identity guardrails, the need check with citations and decisions, the description coach | ✅ |
+| 3 | Description drafting, verification pass, gap fitting, the three AD styles, the standards view | in progress |
+| 4 | Exports: descriptions VTT, Panopto quick mode, described transcript and MP4, the embeddable accessible player | |
+| 5 | Image and slide description with batch review | |
+| 6 | Live captions and slide-change announcer | |
+| 7 | Spanish parity, 23-language UI, cloud BYOK, installers | |
 
 Accuracy is reported per group, never as a single average — speech recognition error is not evenly distributed across accents and speech patterns (Koenecke et al., 2020), and this tool does not pretend otherwise. Before any public release, description output and the review editor are evaluated by blind and low vision reviewers, paid for their time.
 
+## Models
+
+Everything runs locally. No model ships inside the app — each downloads once, on first use, from the source listed in [docs/MODEL_LICENSES.md](docs/MODEL_LICENSES.md), and nothing is sent anywhere at caption or description time.
+
+| Role | Model | License |
+|---|---|---|
+| Voice activity detection | Silero VAD (inside faster-whisper) | MIT |
+| Speech recognition | Whisper via faster-whisper; NVIDIA Parakeet TDT 0.6B via parakeet-mlx on Apple Silicon | MIT; CC-BY-4.0 |
+| Speaker labels | pyannote segmentation-3.0 + NVIDIA NeMo TitaNet (ONNX, via sherpa-onnx — no account or token needed) | MIT; CC-BY-4.0 |
+| Keyframe OCR | RapidOCR (models ship in the Python wheel) | Apache-2.0 |
+| Visual facts | Qwen3-VL 8B via Ollama | Apache-2.0 |
+| Need check, coach, intent | Qwen3 8B via Ollama | Apache-2.0 |
+
+Credits: Whisper © OpenAI (MIT). Parakeet TDT 0.6B and TitaNet © NVIDIA Corporation, used under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/). pyannote segmentation © CNRS, pyannote team (MIT). Qwen models © Alibaba Cloud (Apache-2.0). Silero VAD © Silero Team (MIT). ONNX conversions of the speaker models redistributed by the [k2-fsa/sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) project.
+
 ## Running from source
 
-Requires Python 3.10+ (with [FFmpeg](https://ffmpeg.org) on PATH), Node 20+, and [Ollama](https://ollama.com) for the AI stages (Phase 2+).
+Requires Python 3.10+ (with [FFmpeg](https://ffmpeg.org) on PATH), Node 20+, and [Ollama](https://ollama.com) ≥ 0.12.7 for the vision and text stages (`ollama pull qwen3-vl:8b qwen3:8b`).
 
 ```bash
 git clone https://github.com/Tech-Inclusion-Pro/DescriptorPro.git
