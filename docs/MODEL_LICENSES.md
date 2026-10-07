@@ -56,7 +56,7 @@ one-model-at-a-time rule on the 18 GB M3. Fallback if it misbehaves:
 
 | Component | License | Source | Obligations |
 |---|---|---|---|
-| OpenDyslexic Regular/Bold | SIL OFL 1.1 | bundled in `ui/` | keep OFL text with the font (pending Rocco's Phase 0 confirm) |
+| OpenDyslexic Regular/Bold (© Abbie Gonzalez) | SIL OFL 1.1 | bundled in `ui/public/fonts/` | OFL text ships next to the font files (`ui/public/fonts/OFL.txt`, added 2026-10-07) — this is the only third-party work the app redistributes itself |
 
 ## Coming later (recorded when they land)
 

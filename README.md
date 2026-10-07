@@ -115,7 +115,7 @@ Everything runs locally. No model ships inside the app — each downloads once, 
 | Visual facts | Qwen3-VL 8B via Ollama | Apache-2.0 |
 | Need check, coach, intent | Qwen3 8B via Ollama | Apache-2.0 |
 
-Credits: Whisper © OpenAI (MIT). Parakeet TDT 0.6B and TitaNet © NVIDIA Corporation, used under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/). pyannote segmentation © CNRS, pyannote team (MIT). Qwen models © Alibaba Cloud (Apache-2.0). Silero VAD © Silero Team (MIT). ONNX conversions of the speaker models redistributed by the [k2-fsa/sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) project.
+Credits: Whisper © OpenAI (MIT). Parakeet TDT 0.6B and TitaNet © NVIDIA Corporation, used under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) (format conversions, not modifications of the models' behavior). The MLX conversion of Parakeet comes from the [mlx-community](https://huggingface.co/mlx-community); the ONNX conversions of the speaker models come from the [k2-fsa/sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) project. pyannote segmentation © CNRS, pyannote team (MIT). Qwen models © Alibaba Cloud (Apache-2.0). Silero VAD © Silero Team (MIT). The bundled [OpenDyslexic](https://opendyslexic.org) font © Abbie Gonzalez, SIL OFL 1.1 — the license text ships with the font files. The full record, including every source URL and what each license obliges, is [docs/MODEL_LICENSES.md](docs/MODEL_LICENSES.md).
 
 ## Running from source
 
