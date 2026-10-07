@@ -66,3 +66,15 @@ live-mode phase timing (currently Phase 6).
     (Apache-2.0, models bundled in the wheel, zero network). Slide-change
     detection uses a 64×36 grid diff, not a 64-bit perceptual hash — measured:
     the hash misses text-only slide changes entirely.
+
+11. **Able Player + Kokoro (plan P4 VERIFY — RESOLVED 2026-10-07).** Able
+    Player v5.0.0 passes all four §9.2 checks (MIT; browser-voice readout
+    w/ ARIA-live fallback; data-desc-pause-default pause/auto-resume
+    confirmed in source; zero network). Vendored in player/vendor/ with
+    licenses; every export ships them. Known limit in each export README:
+    VTT won't load from file:// double-click — upload or preview through
+    the app. Narration = kokoro-onnx (MIT runtime, Apache-2.0 Kokoro-82M
+    weights from GitHub releases, espeak-ng bundled); measured clip
+    durations replace 160 wpm estimates in the render (estimates ran ~60%
+    short on real synthesis). Panopto format still UNVERIFIED on a real
+    site — both A/B variants ship, stamped drafts.

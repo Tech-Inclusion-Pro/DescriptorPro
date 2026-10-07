@@ -52,6 +52,27 @@ newer). 8B q4_K_M ≈ 8–10 GB resident — fine alone under the §5.3
 one-model-at-a-time rule on the 18 GB M3. Fallback if it misbehaves:
 `qwen2.5vl:7b`.
 
+## Narration and player (Phase 4)
+
+| Component | License | Source | Obligations |
+|---|---|---|---|
+| kokoro-onnx (runtime) | MIT | PyPI | license notice |
+| Kokoro-82M voice model + voices file | Apache-2.0 (hexgrad) | kokoro-onnx GitHub releases (first use) | license notice |
+| espeakng_loader (bundled espeak-ng) | GPL-3.0 (espeak-ng) — loaded as a separate library at runtime, not linked into app code | PyPI dependency of kokoro-onnx | keep as runtime dependency, do not vendor into MIT code |
+| **Able Player v5.0.0** (bundled in `player/vendor/`, **redistributed in every player export**) | MIT | github.com/ableplayer/ableplayer | **its LICENSE ships in each exported folder** (`assets/ABLEPLAYER-LICENSE.txt`) — handled by the exporter |
+| **jQuery 3.7.1 slim** (same) | MIT | jquery.com | same — `assets/JQUERY-LICENSE.txt` |
+| DOMPurify (inside ableplayer.min.js) | Apache-2.0 / MPL-2.0 dual | bundled upstream | covered by shipping Able Player's license file |
+
+Decision 2026-10-07 (plan P4 VERIFY, Able Player §9.2): **all four checks
+pass** — MIT license; reads description tracks aloud via the Web Speech
+API with an ARIA-live fallback; `data-desc-pause-default` pauses the video
+during a description and auto-resumes (confirmed in source); zero external
+requests (no CDN, no fonts, translations bundled since v5.0.0). Known
+limit, stated in each export's README: VTT tracks do not load from
+file:// double-click (browser fetch restriction) — any static hosting
+works. Panopto A/B variants both ship until one is confirmed on UIC's
+Panopto (needs Rocco's access).
+
 ## Fonts (Phase 0)
 
 | Component | License | Source | Obligations |

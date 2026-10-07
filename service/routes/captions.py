@@ -118,6 +118,28 @@ class ExportRequest(BaseModel):
     formats: list[str] = ["vtt"]
 
 
+@router.post("/projects/{project_id}/export-player")
+def export_player_folder(project_id: str) -> dict:
+    """Builds the embeddable player folder (spec §9) in exports/."""
+    from exporters.player_exporter import export_player
+
+    store = _store()
+    try:
+        project = _load(store, project_id)
+        if not project.get("caption_cues"):
+            raise HTTPException(status_code=400, detail="Draft captions before exporting a player.")
+        _refresh_provenance(project)
+        store.save(project)
+        exports_dir = store.folder(project_id) / "exports"
+        title = project.get("title") or "video"
+        safe = "".join(ch if ch.isalnum() or ch in "-_" else "-" for ch in title).strip("-")
+        folder = exports_dir / f"{safe or 'video'}-player"
+        result = export_player(project, project["source"]["path"], folder)
+        return result
+    finally:
+        store.close()
+
+
 @router.post("/projects/{project_id}/export")
 def export_captions(project_id: str, body: ExportRequest) -> dict:
     from exporters.caption_cue_exporter import export_cues_srt, export_cues_vtt
@@ -134,6 +156,21 @@ def export_captions(project_id: str, body: ExportRequest) -> dict:
         lang = project.get("provenance", {}).get("language") or "en"
         stem = f"captions.{lang}"
 
+        from exporters.description_exporter import (
+            export_described_transcript_docx,
+            export_described_transcript_html,
+            export_description_script_docx,
+            export_descriptions_vtt,
+            export_panopto_vtt,
+        )
+
+        def need_descriptions() -> None:
+            if not project.get("description_cues"):
+                raise HTTPException(
+                    status_code=400,
+                    detail="There are no descriptions yet. Draft them on the Review step first.",
+                )
+
         written: list[str] = []
         for fmt in body.formats:
             if fmt == "vtt":
@@ -142,6 +179,38 @@ def export_captions(project_id: str, body: ExportRequest) -> dict:
                 path = export_cues_srt(project, exports_dir / f"{stem}.srt")
                 written.append(str(path))
                 written.append(str(path.with_suffix(".provenance.txt")))
+            elif fmt == "descriptions_vtt":
+                need_descriptions()
+                written.append(
+                    str(export_descriptions_vtt(project, exports_dir / f"descriptions.{lang}.vtt"))
+                )
+            elif fmt == "panopto":
+                need_descriptions()
+                title = project.get("title") or "video"
+                prov_status = project.get("provenance", {}).get("status")
+                panopto_stem = title if prov_status == "reviewed" else f"{title}.DRAFT-not-reviewed"
+                written += [str(p) for p in export_panopto_vtt(project, exports_dir, panopto_stem)]
+            elif fmt == "transcript_html":
+                need_descriptions()
+                written.append(
+                    str(export_described_transcript_html(project, exports_dir / "transcript.html"))
+                )
+            elif fmt == "transcript_docx":
+                need_descriptions()
+                written.append(
+                    str(export_described_transcript_docx(project, exports_dir / "transcript.docx"))
+                )
+            elif fmt == "script_docx":
+                need_descriptions()
+                written.append(
+                    str(export_description_script_docx(project, exports_dir / "description-script.docx"))
+                )
+            elif fmt == "provenance_json":
+                import json as _json
+
+                path = exports_dir / "provenance.json"
+                path.write_text(_json.dumps(project.get("provenance", {}), indent=2))
+                written.append(str(path))
             else:
                 raise HTTPException(status_code=400, detail=f"Unknown export format: {fmt}")
 

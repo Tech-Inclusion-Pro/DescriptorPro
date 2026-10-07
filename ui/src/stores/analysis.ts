@@ -59,6 +59,8 @@ interface AnalysisState {
   setDecision: (segmentId: string, value: 'describe' | 'skip' | 'undecided') => Promise<void>
   loadDescriptions: () => Promise<void>
   runDescribe: () => Promise<void>
+  renderDescribed: () => Promise<string | null>
+  exportPlayer: () => Promise<{ folder: string; embed_code: string } | null>
   patchDescription: (
     cueId: string,
     body: { text?: string; use?: 'suggested' | 'full' | 'short'; approve?: boolean },
@@ -163,6 +165,31 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
       set({ busy: false, phase: 'idle' })
     } catch (err) {
       set({ busy: false, phase: 'idle', error: err instanceof Error ? err.message : String(err) })
+    }
+  },
+
+  async renderDescribed() {
+    const { projectId } = useProjectStore.getState()
+    if (!projectId) return null
+    set({ busy: true, error: null, phase: 'describe' })
+    try {
+      await runJob(projectId, 'render_described')
+      set({ busy: false, phase: 'idle' })
+      return 'done'
+    } catch (err) {
+      set({ busy: false, phase: 'idle', error: err instanceof Error ? err.message : String(err) })
+      return null
+    }
+  },
+
+  async exportPlayer() {
+    const { projectId } = useProjectStore.getState()
+    if (!projectId) return null
+    try {
+      return await api.exportPlayer(projectId)
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : String(err) })
+      return null
     }
   },
 

@@ -57,6 +57,18 @@ def _parakeet_handle(name: str) -> ModelHandle:
     return handle
 
 
+def _kokoro_unloader(handle: ModelHandle) -> None:
+    from core.engine.speak import release_engine
+
+    release_engine()
+
+
+def _kokoro_handle(name: str) -> ModelHandle:
+    handle = ModelHandle(role="kokoro", name=name, instance=None)
+    handle.unloader = _kokoro_unloader
+    return handle
+
+
 class ModelManager:
     def __init__(self) -> None:
         self._lock = asyncio.Lock()
@@ -68,6 +80,7 @@ class ModelManager:
             # serializes access so no other model is resident at the same time.
             "whisper": lambda name: ModelHandle(role="whisper", name=name, instance=None),
             "parakeet": _parakeet_handle,
+            "kokoro": _kokoro_handle,
         }
 
     def register_loader(self, role: str, loader: Callable[[str], ModelHandle]) -> None:

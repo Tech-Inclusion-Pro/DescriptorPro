@@ -464,12 +464,149 @@ async def describe_job(ctx, model_manager) -> dict:
         store.close()
 
 
+async def quick_panopto_job(ctx, model_manager) -> dict:
+    """Panopto quick mode (spec §8.3): the whole pipeline in one pass with
+    no stops. Auto-decisions: needed→describe, not_needed→skip,
+    uncertain→describe (and listed in the result). Every output is stamped
+    'Draft. Not reviewed by a person.' — the stamp is permanent until a
+    person actually reviews."""
+    from service.projects import ProjectStore
+    from service.settings_store import library_dir
+
+    # Chain the existing handlers; each stage resumes from its saved output.
+    await transcribe_job(ctx, model_manager)
+    await visual_track_job(ctx, model_manager)
+    await need_check_job(ctx, model_manager)
+
+    store = ProjectStore(library_dir())
+    try:
+        project = store.load(ctx.job.project_id)
+        ctx.stage("auto-decide")
+        uncertain_described = []
+        for seg in project.get("segments", []):
+            verdict = (seg.get("need") or {}).get("verdict")
+            value = "describe" if verdict in ("needed", "uncertain") else "skip"
+            seg["decision"] = {"value": value, "by": "quick mode (no person)", "at": None}
+            if verdict == "uncertain" and value == "describe":
+                uncertain_described.append(seg["id"])
+        project["review_level"] = "quick_panopto"
+        store.save(project)
+    finally:
+        store.close()
+
+    await describe_job(ctx, model_manager)
+
+    store = ProjectStore(library_dir())
+    try:
+        project = store.load(ctx.job.project_id)
+        ctx.stage("export")
+        from exporters.description_exporter import export_panopto_vtt
+
+        exports_dir = ctx.project_folder / "exports"
+        exports_dir.mkdir(parents=True, exist_ok=True)
+        stem = (project.get("title") or "video") + ".DRAFT-not-reviewed"
+        written = export_panopto_vtt(project, exports_dir, stem)
+        prov = project.setdefault("provenance", {})
+        prov["status"] = "draft_not_reviewed"
+        prov["quick_mode"] = {
+            "uncertain_described": uncertain_described,
+            "stamp": "Draft. Not reviewed by a person.",
+        }
+        store.save(project)
+        ctx.percent(100)
+        ctx.status(
+            f"Quick mode done: {len(project.get('description_cues', []))} descriptions, "
+            f"{len(uncertain_described)} uncertain parts described anyway. "
+            "Both Panopto files are stamped as unreviewed drafts."
+        )
+        return {
+            "written": [str(p) for p in written],
+            "uncertain_described": uncertain_described,
+        }
+    finally:
+        store.close()
+
+
+async def render_described_job(ctx, model_manager) -> dict:
+    """Described MP4 (spec §8.2): synthesize each description with Kokoro
+    (measured durations replace estimates), then one FFmpeg pass — ducked
+    program audio, loudness-normalized, frames frozen for extended cues."""
+    from service.paths import app_support_dir
+    from service.projects import ProjectStore
+    from service.settings_store import library_dir
+
+    store = ProjectStore(library_dir())
+    try:
+        project = store.load(ctx.job.project_id)
+        if project is None:
+            raise ValueError("Project not found.")
+        cues = project.get("description_cues", [])
+        if not cues:
+            raise ValueError("There are no descriptions yet. Draft them on the Review step first.")
+        source = project["source"]["path"]
+        duration = float(project.get("source", {}).get("duration") or 0.0)
+
+        # Stage 1: narration clips (Kokoro, one at a time like any model)
+        ctx.stage("narration")
+        narr_dir = ctx.project_folder / "narration"
+        narr_dir.mkdir(parents=True, exist_ok=True)
+        from core.engine.speak import release_engine, synthesize
+
+        models_dir = app_support_dir() / "models" / "kokoro"
+        wavs = []
+        async with model_manager.use("kokoro", "kokoro-v1.0"):
+            for i, cue in enumerate(cues):
+                ctx.cancel.raise_if_cancelled()
+                wav = narr_dir / f"{cue['id']}.wav"
+                if not wav.exists():
+                    measured = await asyncio.to_thread(
+                        synthesize, cue["text"], wav, models_dir, progress=ctx
+                    )
+                    cue["clip_duration"] = measured
+                elif not cue.get("clip_duration"):
+                    import wave as _wave
+
+                    with _wave.open(str(wav), "rb") as f:
+                        cue["clip_duration"] = round(f.getnframes() / f.getframerate(), 3)
+                wavs.append(wav)
+                ctx.percent(min(int((i + 1) / len(cues) * 100), 99))
+                ctx.status(f"Recording narration {i + 1} of {len(cues)}...")
+        release_engine()
+        ctx.percent(100)
+
+        # Stage 2: render
+        ctx.stage("render")
+        from core.engine.render_video import render_described_video
+
+        exports_dir = ctx.project_folder / "exports"
+        exports_dir.mkdir(parents=True, exist_ok=True)
+        stem = project.get("title") or "video"
+        out = exports_dir / f"{stem}.described.mp4"
+        ctx.status("Mixing the described video (this can take a while)...")
+        await asyncio.to_thread(
+            render_described_video, source, cues, wavs, duration, out
+        )
+
+        ctx.stage("save")
+        project["description_cues"] = cues  # clip_duration now measured
+        prov = project.setdefault("provenance", {})
+        prov.setdefault("descriptions", {})["voice"] = "synthetic (Kokoro, local)"
+        store.save(project)
+        ctx.percent(100)
+        ctx.status(f"Described video written: {out.name}")
+        return {"written": str(out)}
+    finally:
+        store.close()
+
+
 _HANDLERS: dict[str, JobHandler] = {
     "noop": noop_job,
     "transcribe": transcribe_job,
     "visual_track": visual_track_job,
     "need_check": need_check_job,
     "describe": describe_job,
+    "quick_panopto": quick_panopto_job,
+    "render_described": render_described_job,
 }
 
 

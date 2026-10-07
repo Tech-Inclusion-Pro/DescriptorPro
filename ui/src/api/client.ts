@@ -103,6 +103,11 @@ export const api = {
       body: JSON.stringify({ value, by }),
     }),
   getStandards: () => request<StandardsDoc>('/api/standards'),
+  exportPlayer: (projectId: string) =>
+    request<{ folder: string; files: string[]; embed_code: string }>(
+      `/api/projects/${projectId}/export-player`,
+      { method: 'POST' },
+    ),
   getDescriptions: (projectId: string) =>
     request<{ cues: DescriptionCue[]; ad_style: string; added_running_time: number }>(
       `/api/projects/${projectId}/descriptions`,
