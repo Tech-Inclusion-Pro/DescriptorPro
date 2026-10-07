@@ -87,16 +87,16 @@ tests/         pytest suite (engine, service) + UI tests with axe
 
 ## Status
 
-**Phases 0–2 are complete.** The pipeline today takes a video from upload through captions (with speaker labels and word-level flags), the intent conversation, the visual track, and a cited per-segment need check with recorded human decisions. Each phase is gated on acceptance checks including manual screen-reader testing:
+**Phases 0–4 are complete.** The pipeline today takes a video from upload through captions, the intent conversation, the visual track, the cited need check, verified description drafting — and out the other side as real artifacts: caption and description tracks, a described transcript, a Panopto file, a described MP4 with synthetic narration mixed and ducked in, and a self-contained accessible player folder. Each phase is gated on acceptance checks including manual screen-reader testing:
 
 | Phase | Scope | |
 |---|---|---|
 | 0 | Foundation: local service, resumable jobs, UI shell, display-settings widget, Electron loopback enforcement | ✅ |
 | 1 | Captions: Silero VAD, two ASR engines (faster-whisper + Parakeet on Apple Silicon), word-level timing and confidence, forced alignment, DCMP/FCC formatting, speaker labels, caption review, VTT/SRT with provenance, per-group accuracy harness | ✅ |
 | 2 | Intent conversation with editable profile, scene/slide detection, OCR, structured visual facts with identity guardrails, the need check with citations and decisions, the description coach | ✅ |
-| 3 | Description drafting, verification pass, gap fitting, the three AD styles, the standards view | in progress |
-| 4 | Exports: descriptions VTT, Panopto quick mode, described transcript and MP4, the embeddable accessible player | |
-| 5 | Image and slide description with batch review | |
+| 3 | Description drafting, claim-by-claim verification pass, gap fitting, the three AD styles, the standards view with cited criteria | ✅ |
+| 4 | Exports: descriptions VTT, Panopto quick mode, described transcript (HTML/DOCX), described MP4 with ducked narration and frozen frames for extended cues, the embeddable accessible player (Able Player, zero network) | ✅ |
+| 5 | Image and slide description with batch review | in progress |
 | 6 | Live captions and slide-change announcer | |
 | 7 | Spanish parity, 23-language UI, cloud BYOK, installers | |
 
@@ -113,9 +113,10 @@ Everything runs locally. No model ships inside the app — each downloads once, 
 | Speaker labels | pyannote segmentation-3.0 + NVIDIA NeMo TitaNet (ONNX, via sherpa-onnx — no account or token needed) | MIT; CC-BY-4.0 |
 | Keyframe OCR | RapidOCR (models ship in the Python wheel) | Apache-2.0 |
 | Visual facts | Qwen3-VL 8B via Ollama | Apache-2.0 |
-| Need check, coach, intent | Qwen3 8B via Ollama | Apache-2.0 |
+| Need check, coach, intent, description drafting | Qwen3 8B via Ollama | Apache-2.0 |
+| Described-video narration | Kokoro 82M via kokoro-onnx | Apache-2.0 (model), MIT (runtime) |
 
-Credits: Whisper © OpenAI (MIT). Parakeet TDT 0.6B and TitaNet © NVIDIA Corporation, used under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) (format conversions, not modifications of the models' behavior). The MLX conversion of Parakeet comes from the [mlx-community](https://huggingface.co/mlx-community); the ONNX conversions of the speaker models come from the [k2-fsa/sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) project. pyannote segmentation © CNRS, pyannote team (MIT). Qwen models © Alibaba Cloud (Apache-2.0). Silero VAD © Silero Team (MIT). The bundled [OpenDyslexic](https://opendyslexic.org) font © Abbie Gonzalez, SIL OFL 1.1 — the license text ships with the font files. The full record, including every source URL and what each license obliges, is [docs/MODEL_LICENSES.md](docs/MODEL_LICENSES.md).
+Credits: Whisper © OpenAI (MIT). Parakeet TDT 0.6B and TitaNet © NVIDIA Corporation, used under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) (format conversions, not modifications of the models' behavior). The MLX conversion of Parakeet comes from the [mlx-community](https://huggingface.co/mlx-community); the ONNX conversions of the speaker models come from the [k2-fsa/sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) project. pyannote segmentation © CNRS, pyannote team (MIT). Qwen models © Alibaba Cloud (Apache-2.0). Silero VAD © Silero Team (MIT). Kokoro © hexgrad (Apache-2.0). The bundled [OpenDyslexic](https://opendyslexic.org) font © Abbie Gonzalez, SIL OFL 1.1 — the license text ships with the font files. Player exports bundle [Able Player](https://github.com/ableplayer/ableplayer) (MIT) and jQuery (MIT), each with its license file inside the exported folder. The full record, including every source URL and what each license obliges, is [docs/MODEL_LICENSES.md](docs/MODEL_LICENSES.md).
 
 ## Running from source
 
