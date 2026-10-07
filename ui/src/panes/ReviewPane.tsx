@@ -89,7 +89,9 @@ export function ReviewPane({ hidden }: { hidden: boolean }) {
 function Cue({ cue, onPlay }: { cue: CaptionCue; onPlay: () => void }) {
   const project = useProjectStore()
   const [text, setText] = useState(cue.text)
+  const [speaker, setSpeaker] = useState(cue.speaker ?? '')
   const dirty = text !== cue.text
+  const speakerDirty = speaker !== (cue.speaker ?? '')
 
   return (
     <li className="cue">
@@ -102,6 +104,19 @@ function Cue({ cue, onPlay }: { cue: CaptionCue; onPlay: () => void }) {
           {cue.status === 'approved' ? `Approved by ${cue.approved_by}` : 'Draft'}
         </span>
       </div>
+      <div className="field" style={{ maxInlineSize: '14rem' }}>
+        <label htmlFor={`cue-speaker-${cue.id}`}>Speaker</label>
+        <input
+          id={`cue-speaker-${cue.id}`}
+          type="text"
+          value={speaker}
+          placeholder="No label"
+          onChange={(e) => setSpeaker(e.target.value)}
+          onBlur={() => {
+            if (speakerDirty) void project.editCue(cue.id, { speaker })
+          }}
+        />
+      </div>
       <div className="field">
         <label htmlFor={`cue-${cue.id}`} className="sr-only">
           Caption text at {fmt(cue.start)}
@@ -112,7 +127,7 @@ function Cue({ cue, onPlay }: { cue: CaptionCue; onPlay: () => void }) {
           value={text}
           onChange={(e) => setText(e.target.value)}
           onBlur={() => {
-            if (dirty) void project.editCue(cue.id, text)
+            if (dirty) void project.editCue(cue.id, { text })
           }}
         />
       </div>
@@ -124,9 +139,21 @@ function Cue({ cue, onPlay }: { cue: CaptionCue; onPlay: () => void }) {
           </svg>
           <div>
             <strong>
-              {flag.type === 'low_confidence' ? 'Low confidence word' : flag.type}
+              {flag.type === 'low_confidence'
+                ? 'Low confidence word'
+                : flag.type === 'reading_rate'
+                  ? 'Fast reading speed'
+                  : flag.type === 'needs_split'
+                    ? 'Caption longer than two lines'
+                    : flag.type}
             </strong>
-            {flag.detail ? `"${flag.detail}" was hard to hear. Listen and confirm.` : null}
+            {flag.type === 'low_confidence' && flag.detail
+              ? `"${flag.detail}" was hard to hear. Listen and confirm.`
+              : flag.type === 'reading_rate' && flag.detail
+                ? `About ${flag.detail}. Consider trimming or splitting this caption.`
+                : flag.type === 'needs_split'
+                  ? 'Split it into shorter captions so it is comfortable to read.'
+                  : null}
           </div>
         </div>
       ))}

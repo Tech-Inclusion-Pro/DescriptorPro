@@ -58,7 +58,10 @@ async def transcribe_job(ctx, model_manager) -> dict:
             raise ValueError("Project not found.")
 
         source = project["source"]["path"]
-        model_size = str(ctx.job.params.get("model") or load_settings()["whisper_model"])
+        settings = load_settings()
+        engine = str(ctx.job.params.get("engine") or settings["asr_engine"])
+        default_model = settings["whisper_model"] if engine == "whisper" else settings["parakeet_model"]
+        model_size = str(ctx.job.params.get("model") or default_model)
         language = ctx.job.params.get("language") or None
 
         # Stage 1: extract 16 kHz mono WAV
@@ -89,18 +92,53 @@ async def transcribe_job(ctx, model_manager) -> dict:
 
             from core.engine.captions import transcribe_to_cues
 
-            async with model_manager.use("whisper", model_size):
+            async with model_manager.use(engine, model_size):
                 result = await asyncio.to_thread(
                     transcribe_to_cues,
                     str(wav_path),
                     model_size,
                     language,
+                    engine=engine,
                     progress=ctx,
                     cancel=ctx.cancel,
                 )
             transcript_path.write_text(json.dumps(result, ensure_ascii=False, indent=2))
 
-        # Stage 3: save cues + provenance into the project
+        # Stage 3: speaker labels. Best effort — captions never fail because
+        # diarization could not run (missing download, odd audio, and so on).
+        ctx.stage("speakers")
+        speakers_path = ctx.project_folder / "audio" / "speakers.json"
+        turns: list | None = None
+        if speakers_path.exists():
+            ctx.status("Speaker turns already found. Loading saved result.")
+            turns = json.loads(speakers_path.read_text())
+        else:
+            import asyncio
+
+            from core.diarize import diarize
+            from core.engine.progress import Cancelled
+            from service.paths import app_support_dir
+
+            try:
+                turns = await asyncio.to_thread(
+                    diarize,
+                    str(wav_path),
+                    app_support_dir() / "models" / "diarization",
+                    progress=ctx,
+                    cancel=ctx.cancel,
+                )
+                speakers_path.write_text(json.dumps(turns))
+            except Cancelled:
+                raise
+            except Exception as exc:
+                ctx.status(f"Speaker labels unavailable ({exc}). Captions continue without them.")
+        if turns:
+            from core.diarize import assign_speakers
+
+            assign_speakers(result["cues"], turns)
+        ctx.percent(100)
+
+        # Stage 4: save cues + provenance into the project
         ctx.stage("save")
         project["caption_cues"] = result["cues"]
         project["source"]["duration"] = result["duration"]

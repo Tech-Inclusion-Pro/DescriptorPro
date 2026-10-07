@@ -56,6 +56,19 @@ def test_edit_returns_cue_to_draft(client, tmp_path):
     assert edited["approved_by"] is None
 
 
+def test_speaker_edit_returns_cue_to_draft(client, tmp_path):
+    project = _project_with_cues(client, tmp_path)
+    url = f"/api/projects/{project['id']}/captions/cap-0001"
+
+    client.patch(url, json={"approve": True, "reviewer": "Rocco Catrone"})
+    relabelled = client.patch(url, json={"speaker": "Dr. Catrone"}).json()
+    assert relabelled["speaker"] == "Dr. Catrone"
+    assert relabelled["status"] == "draft"
+
+    cleared = client.patch(url, json={"speaker": ""}).json()
+    assert cleared["speaker"] is None
+
+
 def test_approve_requires_name_and_clears_flags(client, tmp_path):
     project = _project_with_cues(client, tmp_path)
     url = f"/api/projects/{project['id']}/captions/cap-0002"

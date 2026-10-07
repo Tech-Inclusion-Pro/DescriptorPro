@@ -11,7 +11,14 @@ from pathlib import Path
 
 from service.paths import app_support_dir, default_library_dir
 
-_ALLOWED_KEYS = {"library_dir", "language", "reviewer_name", "whisper_model"}
+_ALLOWED_KEYS = {
+    "library_dir",
+    "language",
+    "reviewer_name",
+    "whisper_model",
+    "asr_engine",
+    "parakeet_model",
+}
 
 
 def _settings_file() -> Path:
@@ -30,6 +37,8 @@ def load_settings() -> dict:
     data.setdefault("language", "en")
     data.setdefault("reviewer_name", "")
     data.setdefault("whisper_model", "medium")
+    data.setdefault("asr_engine", "whisper")  # "whisper" | "parakeet"
+    data.setdefault("parakeet_model", "mlx-community/parakeet-tdt-0.6b-v3")
     return data
 
 

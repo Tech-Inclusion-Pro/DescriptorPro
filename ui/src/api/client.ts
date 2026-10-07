@@ -69,7 +69,7 @@ export const api = {
     request<{ cues: CaptionCue[]; provenance: Record<string, unknown>; source: Record<string, unknown>; status: string }>(
       `/api/projects/${projectId}/captions`,
     ),
-  patchCue: (projectId: string, cueId: string, body: { text?: string; approve?: boolean; reviewer?: string }) =>
+  patchCue: (projectId: string, cueId: string, body: { text?: string; speaker?: string; approve?: boolean; reviewer?: string }) =>
     request<CaptionCue>(`/api/projects/${projectId}/captions/${cueId}`, {
       method: 'PATCH',
       body: JSON.stringify(body),

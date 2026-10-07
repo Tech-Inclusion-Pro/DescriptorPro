@@ -21,6 +21,22 @@ class CaptionLimits:
 
 
 @dataclass(frozen=True)
+class VadConfig:
+    """Silero VAD gating for speech recognition (spec §4: no captions drafted
+    from silence; stops model hallucination in quiet stretches).
+
+    Values match faster-whisper's VadOptions defaults on purpose: tighter
+    silence windows fragment speech, and with word_timestamps=True the
+    fragment edges drop words (measured 2026-10-07 — final words of a clip
+    lost at min_silence 700 ms, intact at 2000 ms)."""
+
+    enabled: bool = True
+    threshold: float = 0.5
+    min_silence_duration_ms: int = 2000
+    speech_pad_ms: int = 400
+
+
+@dataclass(frozen=True)
 class GapLimits:
     """Gap detection for audio description placement."""
 
@@ -32,6 +48,7 @@ class GapLimits:
 @dataclass(frozen=True)
 class EngineConfig:
     captions: CaptionLimits = field(default_factory=CaptionLimits)
+    vad: VadConfig = field(default_factory=VadConfig)
     gaps: GapLimits = field(default_factory=GapLimits)
     transcript_window_pad_seconds: float = 3.0
 

@@ -61,6 +61,7 @@ def get_captions(project_id: str) -> dict:
 
 class CuePatch(BaseModel):
     text: str | None = None
+    speaker: str | None = None  # "" clears the label
     approve: bool | None = None
     reviewer: str | None = None
 
@@ -80,6 +81,15 @@ def patch_cue(project_id: str, cue_id: str, body: CuePatch) -> dict:
             cue["status"] = "draft"
             cue["approved_by"] = None
             cue["approved_at"] = None
+
+        if body.speaker is not None:
+            new_speaker = body.speaker.strip() or None
+            if new_speaker != cue.get("speaker"):
+                # The label is part of what viewers read, so it re-opens review.
+                cue["speaker"] = new_speaker
+                cue["status"] = "draft"
+                cue["approved_by"] = None
+                cue["approved_at"] = None
 
         if body.approve is True:
             if not body.reviewer or not body.reviewer.strip():

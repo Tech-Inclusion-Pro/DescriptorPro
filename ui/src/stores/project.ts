@@ -19,7 +19,7 @@ interface ProjectState {
 
   createFromFile: (file: File, outputs: Record<string, boolean>, model: string) => Promise<void>
   loadCaptions: () => Promise<void>
-  editCue: (cueId: string, text: string) => Promise<void>
+  editCue: (cueId: string, patch: { text?: string; speaker?: string }) => Promise<void>
   approveCue: (cueId: string, approve: boolean) => Promise<void>
   setReviewerName: (name: string) => void
   exportCaptions: (formats: string[]) => Promise<void>
@@ -72,10 +72,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     set({ cues: data.cues, provenance: data.provenance })
   },
 
-  async editCue(cueId, text) {
+  async editCue(cueId, patch) {
     const { projectId } = get()
     if (!projectId) return
-    const cue = await api.patchCue(projectId, cueId, { text })
+    const cue = await api.patchCue(projectId, cueId, patch)
     set((s) => ({ cues: s.cues.map((c) => (c.id === cueId ? cue : c)) }))
   },
 

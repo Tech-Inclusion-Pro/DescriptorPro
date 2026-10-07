@@ -8,3 +8,8 @@ pytest>=8.0.0
 pytest-asyncio>=0.24.0
 httpx>=0.27.0
 python-multipart>=0.0.9
+# Speech backends (Phase 1). faster-whisper comes from requirements.txt.
+parakeet-mlx>=0.5.3; platform_machine == "arm64" and sys_platform == "darwin"
+# Speaker labels (Phase 1): ungated pyannote segmentation-3.0 ONNX + embedding
+# models fetched from GitHub releases, no Hugging Face account needed.
+sherpa-onnx>=1.12.0

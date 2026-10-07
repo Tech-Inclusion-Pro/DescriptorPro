@@ -41,3 +41,17 @@ Need-check default report audience · strictly blind-led standards
 quotes (DS-3/4/5/7) · caption standards list · player base (Able Player
 pending the §9.2 checks) · Kokoro clips in the player · sound-event tagging model ·
 live-mode phase timing (currently Phase 6).
+
+8. **Parakeet runtime (plan P1 VERIFY — RESOLVED 2026-10-07).** Apple-Silicon
+   backend is **parakeet-mlx** (Apache-2.0, actively maintained, native
+   word-level timestamps, default model mlx-community/parakeet-tdt-0.6b-v3,
+   CC-BY-4.0 weights). The future Windows path is onnx-asr (MIT) behind the
+   same `core/asr/` interface. NeMo rejected as a dependency (too heavy).
+
+9. **Speaker-label models (plan P1 VERIFY, pyannote — RESOLVED 2026-10-07).**
+   pyannote's own Hugging Face repos are gated per user (account + token) —
+   the wrong flow for non-technical reviewers. The weights themselves are
+   MIT/CC-BY-4.0, so we use k2-fsa's **ungated sherpa-onnx redistributions**
+   (pyannote segmentation-3.0 ONNX + NeMo TitaNet-small embedding) downloaded
+   from GitHub releases on first use. No Hugging Face account involved.
+   github.com release downloads added to the §13 allowlist for model fetches.

@@ -44,6 +44,19 @@ def ollama_loader(name: str) -> ModelHandle:
     return handle
 
 
+def _parakeet_unloader(handle: ModelHandle) -> None:
+    import mlx.core as mx
+
+    gc.collect()
+    mx.clear_cache()  # return Metal buffer pool to the OS
+
+
+def _parakeet_handle(name: str) -> ModelHandle:
+    handle = ModelHandle(role="parakeet", name=name, instance=None)
+    handle.unloader = _parakeet_unloader
+    return handle
+
+
 class ModelManager:
     def __init__(self) -> None:
         self._lock = asyncio.Lock()
@@ -51,9 +64,10 @@ class ModelManager:
         self._loaders: dict[str, Callable[[str], ModelHandle]] = {
             "fake": _fake_loader,
             "ollama": ollama_loader,
-            # faster-whisper loads inside the engine call; the handle only
+            # Speech models load inside the engine call; the handle only
             # serializes access so no other model is resident at the same time.
             "whisper": lambda name: ModelHandle(role="whisper", name=name, instance=None),
+            "parakeet": _parakeet_handle,
         }
 
     def register_loader(self, role: str, loader: Callable[[str], ModelHandle]) -> None:
