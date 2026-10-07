@@ -87,7 +87,7 @@ tests/         pytest suite (engine, service) + UI tests with axe
 
 ## Status
 
-**Phases 0–6 are complete; Phase 7 (packaging and parity) is underway.** The pipeline takes a video from upload through captions, the intent conversation, the visual track, the cited need check, and verified description drafting — and out the other side as real artifacts: caption and description tracks, a described transcript, a Panopto file, a described MP4 with synthetic narration mixed and ducked in, and a self-contained accessible player folder. Image batches and PDF slide decks get alt text with human-confirmed decorative status. Live mode streams captions faster than realtime with the measured delay on screen. Each phase is gated on acceptance checks including manual screen-reader testing:
+**All seven build phases are code-complete.** What remains before a public release is human: the gold-set accuracy numbers, the standards-quote verification, manual screen-reader passes, and the paid blind and low-vision reviewer evaluation (see docs/PHASE7-REPORT.md). The pipeline takes a video from upload through captions, the intent conversation, the visual track, the cited need check, and verified description drafting — and out the other side as real artifacts: caption and description tracks, a described transcript, a Panopto file, a described MP4 with synthetic narration mixed and ducked in, and a self-contained accessible player folder. Image batches and PDF slide decks get alt text with human-confirmed decorative status. Live mode streams captions faster than realtime with the measured delay on screen. Each phase is gated on acceptance checks including manual screen-reader testing:
 
 | Phase | Scope | |
 |---|---|---|
@@ -98,7 +98,7 @@ tests/         pytest suite (engine, service) + UI tests with axe
 | 4 | Exports: descriptions VTT, Panopto quick mode, described transcript (HTML/DOCX), described MP4 with ducked narration and frozen frames for extended cues, the embeddable accessible player (Able Player, zero network) | ✅ |
 | 5 | Image and slide description with batch review: alt text, long descriptions, decorative suggestions a person confirms, chart number-honesty, CSV/JSON/DOCX | ✅ |
 | 6 | Live captions (streaming Parakeet, measured delay shown, recording off by default) and the slide-change announcer | ✅ |
-| 7 | Spanish output parity, 23-language UI, cloud BYOK (keychain + send preview), self-contained installers, Atrium module | in progress |
+| 7 | Spanish output parity, 23-language UI, cloud BYOK (keychain + send preview), self-contained app (PyInstaller-bundled service), Atrium module | ✅ |
 
 Accuracy is reported per group, never as a single average — speech recognition error is not evenly distributed across accents and speech patterns (Koenecke et al., 2020), and this tool does not pretend otherwise. Before any public release, description output and the review editor are evaluated by blind and low vision reviewers, paid for their time.
 
