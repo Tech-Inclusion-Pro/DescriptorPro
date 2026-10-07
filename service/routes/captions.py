@@ -205,6 +205,23 @@ def export_captions(project_id: str, body: ExportRequest) -> dict:
                 written.append(
                     str(export_description_script_docx(project, exports_dir / "description-script.docx"))
                 )
+            elif fmt in ("images_csv", "images_json", "images_docx"):
+                if not project.get("images"):
+                    raise HTTPException(
+                        status_code=400, detail="There are no image descriptions to export yet."
+                    )
+                from exporters.image_exporter import (
+                    export_images_csv,
+                    export_images_docx,
+                    export_images_json,
+                )
+
+                exporter = {
+                    "images_csv": (export_images_csv, "image-descriptions.csv"),
+                    "images_json": (export_images_json, "image-descriptions.json"),
+                    "images_docx": (export_images_docx, "image-descriptions.docx"),
+                }[fmt]
+                written.append(str(exporter[0](project, exports_dir / exporter[1])))
             elif fmt == "provenance_json":
                 import json as _json
 

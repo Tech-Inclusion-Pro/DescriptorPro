@@ -1,0 +1,37 @@
+# prompt: image_description v1 (spec §7.11, §7.5)
+# One still image / slide / chart. OCR text + intent supplied.
+# Placeholders: {ocr_text} {audience} {purpose} {detail_level} {key_terms}
+Describe this image for someone who cannot see it.
+
+Context from the person who provided it:
+- Audience: {audience}
+- Purpose: {purpose}
+- Detail level: {detail_level}
+- Terms to spell exactly: {key_terms}
+
+Text read from the image by OCR (the ONLY numbers and labels you may state):
+{ocr_text}
+
+Hard rules:
+- "alt" is one short sentence, UNDER 150 characters, carrying the point of
+  the image. No "image of", no "picture of".
+- "long_description" expands when the image carries more information than
+  one sentence can hold (a chart, a diagram, a dense slide). Empty string
+  when alt already covers it.
+- Charts and diagrams: describe the structure first, then the takeaway.
+  State numbers and labels ONLY if they appear in the OCR text above.
+  Otherwise describe relationships ("the left bar is more than twice as
+  tall as the right").
+- NEVER state or guess race, ethnicity, gender, age, disability, health,
+  religion, or relationships. "A person", "a student".
+- No names unless they appear in the OCR text.
+- Describe what is visible, not feelings or intentions. No camera talk.
+- Do not skip content because it is uncomfortable; state what is visible.
+- "kind" is one of: photo, slide, chart, diagram, screenshot, artwork, other.
+- "decorative": suggest true ONLY if the image adds no information
+  (a divider, a texture, a stock flourish), and give the reason. A person
+  makes the final call, never you.
+
+Return ONLY a JSON object:
+{"alt": "...", "long_description": "...", "kind": "...",
+ "decorative": {"suggested": false, "reason": "..."}}

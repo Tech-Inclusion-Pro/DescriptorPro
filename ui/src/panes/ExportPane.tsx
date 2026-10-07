@@ -15,9 +15,13 @@ export function ExportPane({ hidden }: { hidden: boolean }) {
   const [transcriptDocx, setTranscriptDocx] = useState(false)
   const [scriptDocx, setScriptDocx] = useState(false)
   const [provJson, setProvJson] = useState(false)
+  const [imagesCsv, setImagesCsv] = useState(false)
+  const [imagesJson, setImagesJson] = useState(false)
+  const [imagesDocx, setImagesDocx] = useState(false)
   const [playerResult, setPlayerResult] = useState<{ folder: string; embed_code: string } | null>(null)
   const [renderDone, setRenderDone] = useState(false)
   const haveDescriptions = analysis.descriptions.length > 0
+  const haveImages = analysis.images.length > 0
 
   const prov = project.provenance as {
     captions?: { cues?: number; approved?: number; flagged_open?: number }
@@ -37,6 +41,9 @@ export function ExportPane({ hidden }: { hidden: boolean }) {
     ...(transcriptDocx ? ['transcript_docx'] : []),
     ...(scriptDocx ? ['script_docx'] : []),
     ...(provJson ? ['provenance_json'] : []),
+    ...(imagesCsv ? ['images_csv'] : []),
+    ...(imagesJson ? ['images_json'] : []),
+    ...(imagesDocx ? ['images_docx'] : []),
   ]
 
   return (
@@ -93,6 +100,21 @@ export function ExportPane({ hidden }: { hidden: boolean }) {
             <label className="check">
               <input type="checkbox" checked={provJson} onChange={(e) => setProvJson(e.target.checked)} disabled={!haveCues} />
               <span>Provenance record (.json)</span>
+            </label>
+          </fieldset>
+          <fieldset className="plain">
+            <legend>Image descriptions</legend>
+            <label className="check">
+              <input type="checkbox" checked={imagesCsv} onChange={(e) => setImagesCsv(e.target.checked)} disabled={!haveImages} />
+              <span>Spreadsheet (.csv)</span>
+            </label>
+            <label className="check">
+              <input type="checkbox" checked={imagesJson} onChange={(e) => setImagesJson(e.target.checked)} disabled={!haveImages} />
+              <span>Data (.json)</span>
+            </label>
+            <label className="check">
+              <input type="checkbox" checked={imagesDocx} onChange={(e) => setImagesDocx(e.target.checked)} disabled={!haveImages} />
+              <span>Document list (.docx)</span>
             </label>
           </fieldset>
           <fieldset className="plain">

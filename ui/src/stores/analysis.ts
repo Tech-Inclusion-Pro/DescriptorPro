@@ -3,7 +3,15 @@
 // segments and the caption cues. Decisions are recorded per segment.
 
 import { create } from 'zustand'
-import { api, type DescriptionCue, type IntentProfile, type SegmentsReport } from '../api/client'
+import {
+  api,
+  uploadImages,
+  uploadProject,
+  type DescriptionCue,
+  type ImageItem,
+  type IntentProfile,
+  type SegmentsReport,
+} from '../api/client'
 import { useJobsStore } from './jobs'
 import { useProjectStore } from './project'
 
@@ -45,6 +53,7 @@ interface AnalysisState {
   descriptions: DescriptionCue[]
   adStyle: string
   addedRunningTime: number
+  images: ImageItem[]
   busy: boolean
   error: string | null
 
@@ -61,6 +70,13 @@ interface AnalysisState {
   runDescribe: () => Promise<void>
   renderDescribed: () => Promise<string | null>
   exportPlayer: () => Promise<{ folder: string; embed_code: string } | null>
+  loadImages: () => Promise<void>
+  uploadImageBatch: (files: File[]) => Promise<void>
+  describeImages: () => Promise<void>
+  patchImage: (
+    imageId: string,
+    body: { alt?: string; long_description?: string; decorative_confirmed?: boolean; approve?: boolean },
+  ) => Promise<void>
   patchDescription: (
     cueId: string,
     body: { text?: string; use?: 'suggested' | 'full' | 'short'; approve?: boolean },
@@ -78,6 +94,7 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
   descriptions: [],
   adStyle: 'standard',
   addedRunningTime: 0,
+  images: [],
   busy: false,
   error: null,
 
@@ -191,6 +208,56 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
       set({ error: err instanceof Error ? err.message : String(err) })
       return null
     }
+  },
+
+  async loadImages() {
+    const { projectId } = useProjectStore.getState()
+    if (!projectId) return
+    const data = await api.getImages(projectId)
+    set({ images: data.images })
+  },
+
+  async uploadImageBatch(files) {
+    if (!files.length) return
+    set({ busy: true, error: null })
+    try {
+      let { projectId } = useProjectStore.getState()
+      if (!projectId) {
+        // Image-only batch: the first file becomes the project source;
+        // no transcription runs.
+        const title = files[0].name.replace(/\.[^.]+$/, '')
+        const project = await uploadProject(files[0], title, { image_description: true })
+        projectId = String(project.id)
+        useProjectStore.setState({ project, projectId })
+      }
+      const result = await uploadImages(projectId, files)
+      set({ images: result.images, busy: false })
+    } catch (err) {
+      set({ busy: false, error: err instanceof Error ? err.message : String(err) })
+    }
+  },
+
+  async describeImages() {
+    const { projectId } = useProjectStore.getState()
+    if (!projectId) return
+    set({ busy: true, error: null, phase: 'describe' })
+    try {
+      await runJob(projectId, 'describe_images')
+      await get().loadImages()
+      set({ busy: false, phase: 'idle' })
+    } catch (err) {
+      set({ busy: false, phase: 'idle', error: err instanceof Error ? err.message : String(err) })
+    }
+  },
+
+  async patchImage(imageId, body) {
+    const { projectId, reviewerName } = useProjectStore.getState()
+    if (!projectId) return
+    const item = await api.patchImage(projectId, imageId, {
+      ...body,
+      reviewer: body.approve ? reviewerName : undefined,
+    })
+    set((s) => ({ images: s.images.map((i) => (i.id === imageId ? item : i)) }))
   },
 
   async patchDescription(cueId, body) {

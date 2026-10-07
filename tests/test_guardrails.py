@@ -66,6 +66,12 @@ class TestKnownNames:
         names = known_names_from_intent(None, ["Maria Lopez", "who is on the team?"])
         assert names == {"Maria Lopez": "screen"}
 
+    def test_title_case_headings_are_not_names(self):
+        names = known_names_from_intent(
+            None, ["Accessible Documents", "Review Checklist", "Special Educator"]
+        )
+        assert names == {}
+
     def test_intent_wins_over_screen(self):
         intent = {"people": [{"label": "Maria Lopez"}]}
         names = known_names_from_intent(intent, ["Maria Lopez"])

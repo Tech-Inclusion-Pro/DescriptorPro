@@ -599,6 +599,74 @@ async def render_described_job(ctx, model_manager) -> dict:
         store.close()
 
 
+async def describe_images_job(ctx, model_manager) -> dict:
+    """Phase 5 (spec §7.11): OCR + vision description for every image that
+    does not have an approved description yet. Resumable per image —
+    already-described drafts are skipped unless force=true."""
+    from service.projects import ProjectStore
+    from service.settings_store import library_dir, load_settings
+
+    store = ProjectStore(library_dir())
+    try:
+        project = store.load(ctx.job.project_id)
+        if project is None:
+            raise ValueError("Project not found.")
+        images = project.get("images", [])
+        if not images:
+            raise ValueError("There are no images yet. Add images or a PDF first.")
+        force = bool(ctx.job.params.get("force"))
+        todo = [
+            i for i in images
+            if force or (i.get("status") != "approved" and not i.get("alt"))
+        ]
+        if not todo:
+            ctx.status("Every image already has a draft or approved description.")
+            return {"described": 0, "skipped": len(images)}
+
+        from core.engine.llm import LlmClient
+        from core.images import describe_image
+
+        settings = load_settings()
+        model = settings["vision_model"]
+        client = LlmClient()
+        intent = project.get("intent") or {}
+
+        ctx.stage("describe-images")
+        async with model_manager.use("ollama", model):
+            for i, item in enumerate(todo):
+                ctx.cancel.raise_if_cancelled()
+                last = i == len(todo) - 1
+
+                def generate(prompt: str, image_path: str, _last=last) -> str:
+                    return client.generate_json(
+                        model, prompt, images=[image_path], keep_alive=0 if _last else None
+                    )
+
+                await asyncio.to_thread(
+                    describe_image, item, ctx.project_folder / item["path"], intent, generate
+                )
+                store.save(project)  # per-image persistence = resume granularity
+                ctx.percent(min(int((i + 1) / len(todo) * 100), 99))
+                ctx.status(f"Describing image {i + 1} of {len(todo)}: {item['name']}")
+
+        ctx.stage("save")
+        prov = project.setdefault("provenance", {})
+        prov.setdefault("models", []).append(
+            {"role": "image_description", "name": model, "location": "local"}
+        )
+        flagged = sum(1 for i in images if i.get("flags"))
+        decorative = sum(1 for i in images if (i.get("decorative") or {}).get("suggested"))
+        store.save(project)
+        ctx.percent(100)
+        ctx.status(
+            f"Done: {len(todo)} images described, {flagged} flagged, "
+            f"{decorative} suggested decorative (each needs your confirmation)."
+        )
+        return {"described": len(todo), "flagged": flagged, "decorative_suggested": decorative}
+    finally:
+        store.close()
+
+
 _HANDLERS: dict[str, JobHandler] = {
     "noop": noop_job,
     "transcribe": transcribe_job,
@@ -607,6 +675,7 @@ _HANDLERS: dict[str, JobHandler] = {
     "describe": describe_job,
     "quick_panopto": quick_panopto_job,
     "render_described": render_described_job,
+    "describe_images": describe_images_job,
 }
 
 

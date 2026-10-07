@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { t, useI18n } from '../i18n'
+import { useAnalysisStore } from '../stores/analysis'
 import { useJobsStore } from '../stores/jobs'
 import { useProjectStore } from '../stores/project'
 import { useSessionStore } from '../stores/session'
@@ -10,8 +11,10 @@ export function MediaPane({ hidden, onDrafted }: { hidden: boolean; onDrafted: (
   useI18n()
   const connected = useSessionStore((s) => s.connected)
   const project = useProjectStore()
+  const analysis = useAnalysisStore()
   const jobs = useJobsStore((s) => s.jobs)
   const inputRef = useRef<HTMLInputElement>(null)
+  const imagesRef = useRef<HTMLInputElement>(null)
   const [model, setModel] = useState('medium')
   const [dragOver, setDragOver] = useState(false)
   const notifiedRef = useRef(false)
@@ -69,6 +72,45 @@ export function MediaPane({ hidden, onDrafted }: { hidden: boolean; onDrafted: (
             />
           </div>
 
+          <div className="box" style={{ marginBlockStart: '1.25rem' }}>
+            <h3 style={{ marginBlockStart: 0 }}>Images or slides instead?</h3>
+            <p>
+              Add photos, slide images, or a PDF slide deck for alt text and long descriptions.
+              For PowerPoint or Keynote, export the deck to PDF first.
+            </p>
+            <button
+              type="button"
+              className="btn btn--quiet"
+              disabled={!connected || analysis.busy}
+              onClick={() => imagesRef.current?.click()}
+            >
+              Add images or a PDF
+            </button>
+            <input
+              ref={imagesRef}
+              type="file"
+              multiple
+              accept=".png,.jpg,.jpeg,.gif,.webp,.bmp,.tif,.tiff,.pdf"
+              className="sr-only"
+              aria-label="Add images or a PDF"
+              onChange={(e) => {
+                const files = Array.from(e.target.files ?? [])
+                if (files.length) void analysis.uploadImageBatch(files)
+                e.target.value = ''
+              }}
+            />
+            {analysis.images.length > 0 ? (
+              <p className="std" role="status">
+                {analysis.images.length} images ready — describe and review them on the Review step.
+              </p>
+            ) : null}
+            {analysis.error ? (
+              <p className="flag" role="alert">
+                {analysis.error}
+              </p>
+            ) : null}
+          </div>
+
           {project.busy || job ? (
             <div className="box" style={{ marginBlockStart: '1.25rem' }} aria-label={t('media.progress')}>
               <h3 style={{ marginBlockStart: 0 }}>{t('media.progress')}</h3>
@@ -112,9 +154,9 @@ export function MediaPane({ hidden, onDrafted }: { hidden: boolean; onDrafted: (
               </span>
             </label>
             <label className="check">
-              <input type="checkbox" disabled />
+              <input type="checkbox" defaultChecked />
               <span>
-                Image descriptions <small>Arrives in Phase 5</small>
+                Image descriptions <small>Alt text, long descriptions, and decorative suggestions for images and slide decks</small>
               </span>
             </label>
           </fieldset>

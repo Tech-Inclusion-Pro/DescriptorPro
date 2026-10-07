@@ -64,6 +64,7 @@ def create_app(token: str, dev: bool = False) -> FastAPI:
 
     from service.routes.captions import router as captions_router
     from service.routes.descriptions import router as descriptions_router
+    from service.routes.images import router as images_router
     from service.routes.intent import router as intent_router
     from service.routes.jobs import router as jobs_router
     from service.routes.projects import media_router
@@ -77,6 +78,7 @@ def create_app(token: str, dev: bool = False) -> FastAPI:
     app.include_router(jobs_router, prefix="/api")
     app.include_router(captions_router, prefix="/api")
     app.include_router(descriptions_router, prefix="/api")
+    app.include_router(images_router, prefix="/api")
     app.include_router(intent_router, prefix="/api")
     app.include_router(segments_router, prefix="/api")
     app.include_router(settings_router, prefix="/api")

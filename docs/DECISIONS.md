@@ -78,3 +78,9 @@ live-mode phase timing (currently Phase 6).
     durations replace 160 wpm estimates in the render (estimates ran ~60%
     short on real synthesis). Panopto format still UNVERIFIED on a real
     site — both A/B variants ship, stamped drafts.
+
+12. **PDF slide rendering (Phase 5, 2026-10-07).** pypdfium2 (BSD/Apache-2.0)
+    renders slide-deck PDFs to page images. PyMuPDF rejected despite being
+    the common choice: it is AGPL and would contaminate the MIT app.
+    PowerPoint/Keynote files are rejected at ingest with "export the deck
+    to PDF first" guidance rather than adding a LibreOffice dependency.

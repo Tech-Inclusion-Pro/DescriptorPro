@@ -41,6 +41,22 @@ export async function uploadProject(
   return (await response.json()) as Record<string, unknown>
 }
 
+export async function uploadImages(projectId: string, files: File[]): Promise<{ images: ImageItem[] }> {
+  const { token } = getBootstrap()
+  const form = new FormData()
+  for (const file of files) form.append('files', file)
+  const response = await fetch(`${httpBase()}/api/projects/${projectId}/images`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  })
+  if (!response.ok) {
+    const detail = ((await response.json().catch(() => null)) as { detail?: string } | null)?.detail
+    throw new Error(detail ?? `Upload failed (${response.status})`)
+  }
+  return (await response.json()) as { images: ImageItem[] }
+}
+
 export function mediaUrl(projectId: string): string {
   const { token } = getBootstrap()
   return `${httpBase()}/media/${projectId}?token=${encodeURIComponent(token)}`
@@ -103,6 +119,23 @@ export const api = {
       body: JSON.stringify({ value, by }),
     }),
   getStandards: () => request<StandardsDoc>('/api/standards'),
+  getImages: (projectId: string) =>
+    request<{ images: ImageItem[] }>(`/api/projects/${projectId}/images`),
+  patchImage: (
+    projectId: string,
+    imageId: string,
+    body: {
+      alt?: string
+      long_description?: string
+      decorative_confirmed?: boolean
+      approve?: boolean
+      reviewer?: string
+    },
+  ) =>
+    request<ImageItem>(`/api/projects/${projectId}/images/${imageId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
   exportPlayer: (projectId: string) =>
     request<{ folder: string; files: string[]; embed_code: string }>(
       `/api/projects/${projectId}/export-player`,
@@ -198,6 +231,22 @@ export interface DescriptionCue {
   flags: Array<{ type: string; detail?: string }>
   criteria: string[]
   verification?: { checked: boolean; claims: Array<{ text: string; verdict: string }> }
+  status: 'draft' | 'approved'
+  approved_by: string | null
+  approved_at: string | null
+  lang: string
+}
+
+export interface ImageItem {
+  id: string
+  path: string
+  name: string
+  kind: string
+  ocr_text: string[]
+  alt: string
+  long_description: string
+  decorative: { suggested: boolean; reason: string; confirmed: boolean | null }
+  flags: Array<{ type: string; detail?: string }>
   status: 'draft' | 'approved'
   approved_by: string | null
   approved_at: string | null

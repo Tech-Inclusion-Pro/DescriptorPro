@@ -77,6 +77,21 @@ def check_text(
     return flags
 
 
+# Capitalized words that appear in slide headings, not in people's names.
+# A candidate OCR line containing any of these is a title, not a name card
+# (measured 2026-10-07: without this, every Title Case heading on a slide
+# deck raised a name_from_screen flag).
+_HEADING_WORDS = frozenset(
+    """document documents accessible accessibility review checklist overview
+    introduction summary agenda objectives outcomes checklist lesson module
+    chapter unit week team roles goals plan notes questions resources
+    references thank thanks welcome title slide special general educator
+    educators teacher teachers student students parent parents guide
+    guidelines key points steps part reading order text captions caption
+    description descriptions""".split()
+)
+
+
 def known_names_from_intent(intent: dict | None, ocr_text: list[str] | None = None) -> dict[str, str]:
     """The only two legitimate name sources: the intent profile ("user") and
     on-screen text ("screen"). OCR lines are treated as potential name cards
@@ -90,7 +105,11 @@ def known_names_from_intent(intent: dict | None, ocr_text: list[str] | None = No
         # alphabetic words, so "- Headings" (one word plus a dash) is not
         # mistaken for a name.
         words = [w for w in re.split(r"[^\w']+", line) if w and w[:1].isalpha()]
-        if 2 <= len(words) <= 5 and all(w[:1].isupper() for w in words):
+        if (
+            2 <= len(words) <= 5
+            and all(w[:1].isupper() for w in words)
+            and not any(w.lower() in _HEADING_WORDS for w in words)
+        ):
             names[" ".join(words)] = "screen"
     for person in (intent or {}).get("people", []):
         label = (person.get("label") or "").strip()

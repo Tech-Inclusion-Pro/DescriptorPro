@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { mediaUrl, type CaptionCue, type DescriptionCue } from '../api/client'
+import { mediaUrl, type CaptionCue, type DescriptionCue, type ImageItem } from '../api/client'
 import { t, useI18n } from '../i18n'
 import { useAnalysisStore } from '../stores/analysis'
 import { useProjectStore } from '../stores/project'
@@ -19,7 +19,10 @@ export function ReviewPane({ hidden }: { hidden: boolean }) {
   const [unapprovedOnly, setUnapprovedOnly] = useState(false)
 
   useEffect(() => {
-    if (project.projectId) void analysis.loadDescriptions()
+    if (project.projectId) {
+      void analysis.loadDescriptions()
+      void analysis.loadImages()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project.projectId])
 
@@ -97,6 +100,8 @@ export function ReviewPane({ hidden }: { hidden: boolean }) {
                 void media.play()
               }}
             />
+
+            <ImagesSection />
           </div>
         </div>
       )}
@@ -150,6 +155,174 @@ function DescriptionSection({ onPlay }: { onPlay: (start: number) => void }) {
         ) : null}
       </ol>
     </section>
+  )
+}
+
+function ImagesSection() {
+  const analysis = useAnalysisStore()
+  const { images } = analysis
+  if (images.length === 0) return null
+  const approved = images.filter((i) => i.status === 'approved').length
+  const undescribed = images.filter((i) => !i.alt).length
+
+  return (
+    <section aria-labelledby="img-review-h" style={{ marginBlockStart: '1.5rem' }}>
+      <h3 id="img-review-h">Image descriptions</h3>
+      <div className="row">
+        <button
+          type="button"
+          className="btn"
+          disabled={analysis.busy}
+          onClick={() => void analysis.describeImages()}
+        >
+          {analysis.busy && analysis.phase === 'describe'
+            ? 'Describing images...'
+            : undescribed > 0
+              ? `Describe ${undescribed} images`
+              : 'Describe images again'}
+        </button>
+        <p className="std" role="status">
+          {approved} / {images.length} approved
+        </p>
+      </div>
+      <ol className="cues" aria-label="Image descriptions">
+        {images.map((item) => (
+          <ImageItemRow key={item.id} item={item} />
+        ))}
+      </ol>
+    </section>
+  )
+}
+
+const IMAGE_FLAG_LABEL: Record<string, string> = {
+  alt_too_long: 'Alt text is long',
+  unverified_claim: 'Could not be confirmed',
+  identity_inference: 'Guesses identity',
+  interpretation: 'Interprets instead of describing',
+  camera_language: 'Camera language',
+  name_from_user: 'Name you supplied',
+  name_from_screen: 'Name read from the image',
+}
+
+function ImageItemRow({ item }: { item: ImageItem }) {
+  const analysis = useAnalysisStore()
+  const project = useProjectStore()
+  const [alt, setAlt] = useState(item.alt)
+  const [long, setLong] = useState(item.long_description)
+  useEffect(() => setAlt(item.alt), [item.alt])
+  useEffect(() => setLong(item.long_description), [item.long_description])
+  const needsDecorativeCall = item.decorative.suggested && item.decorative.confirmed === null
+
+  return (
+    <li className="cue">
+      <div className="cue__head">
+        <span className="cue__kind">Image</span>
+        <span className="cue__time">{item.name}</span>
+        {item.kind !== 'other' ? <span className="chip">{item.kind}</span> : null}
+        <span className="cue__state">
+          {item.status === 'approved' ? `Approved by ${item.approved_by}` : 'Draft'}
+        </span>
+      </div>
+      <div className="field">
+        <label htmlFor={`img-alt-${item.id}`}>
+          Alt text <small>({alt.length} characters; aim under 150)</small>
+        </label>
+        <input
+          id={`img-alt-${item.id}`}
+          type="text"
+          value={alt}
+          onChange={(e) => setAlt(e.target.value)}
+          onBlur={() => {
+            if (alt !== item.alt) void analysis.patchImage(item.id, { alt })
+          }}
+        />
+      </div>
+      <div className="field">
+        <label htmlFor={`img-long-${item.id}`}>Long description (optional)</label>
+        <textarea
+          id={`img-long-${item.id}`}
+          rows={3}
+          value={long}
+          onChange={(e) => setLong(e.target.value)}
+          onBlur={() => {
+            if (long !== item.long_description)
+              void analysis.patchImage(item.id, { long_description: long })
+          }}
+        />
+      </div>
+      {item.decorative.suggested ? (
+        <div className="flag">
+          <div>
+            <strong>Suggested decorative</strong>
+            {item.decorative.reason ? ` — ${item.decorative.reason}` : null}
+            <p className="std" style={{ margin: '.2rem 0 .4rem' }}>
+              You decide, not the tool. Decorative images are skipped by screen readers.
+            </p>
+            {item.decorative.confirmed === null ? (
+              <div className="row">
+                <button
+                  type="button"
+                  className="btn btn--quiet"
+                  onClick={() => void analysis.patchImage(item.id, { decorative_confirmed: true })}
+                >
+                  Yes, it is decorative
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--quiet"
+                  onClick={() => void analysis.patchImage(item.id, { decorative_confirmed: false })}
+                >
+                  No, describe it
+                </button>
+              </div>
+            ) : (
+              <p className="std">
+                Your call: {item.decorative.confirmed ? 'decorative' : 'not decorative'}
+              </p>
+            )}
+          </div>
+        </div>
+      ) : null}
+      {item.flags.map((flag, ix) => (
+        <div className="flag" key={ix}>
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 2 22 21H2Z" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+            <path d="M12 9v6M12 17.6v.4" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+          </svg>
+          <div>
+            <strong>{IMAGE_FLAG_LABEL[flag.type] ?? flag.type}</strong>
+            {flag.detail ? ` — ${flag.detail}` : null}
+          </div>
+        </div>
+      ))}
+      <div className="row">
+        {item.status === 'approved' ? (
+          <button
+            type="button"
+            className="btn btn--quiet"
+            onClick={() => void analysis.patchImage(item.id, { approve: false })}
+          >
+            Undo approval
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="btn btn--quiet"
+            disabled={!project.reviewerName.trim() || needsDecorativeCall}
+            title={
+              needsDecorativeCall
+                ? 'Decide the decorative question first'
+                : project.reviewerName.trim()
+                  ? undefined
+                  : 'Add your name above first'
+            }
+            onClick={() => void analysis.patchImage(item.id, { approve: true })}
+          >
+            Approve
+          </button>
+        )}
+      </div>
+    </li>
   )
 }
 
