@@ -79,16 +79,18 @@ Panopto (needs Rocco's access).
 |---|---|---|---|
 | OpenDyslexic Regular/Bold (© Abbie Gonzalez) | SIL OFL 1.1 | bundled in `ui/public/fonts/` | OFL text ships next to the font files (`ui/public/fonts/OFL.txt`, added 2026-10-07) — this is the only third-party work the app redistributes itself |
 
-## Coming later (recorded when they land)
-
-- Ollama LLMs for description drafting (Phase 3) — per-model entries.
-- Qwen3-VL vision (Phase 2) — license + Ollama tag at VERIFY.
-- Kokoro TTS (Phase 4) — Apache-2.0 expected; confirm at entry.
-- Able Player (Phase 4) — MIT expected; confirm at VERIFY.
-
 ## Network allowlist impact (spec §13)
 
 Model downloads require exactly these hosts, only during an explicit
 first-use download: `huggingface.co` + its CDN (Whisper, Parakeet),
 `github.com` + `release-assets.githubusercontent.com` (sherpa-onnx
-diarization models). Nothing else; nothing at caption/draft time.
+diarization models, Kokoro voice files), and `ollama.com` (Qwen pulls via
+the local Ollama daemon). Nothing else; nothing at caption/draft time.
+
+## Packaging (Phase 7)
+
+| Component | License | Note |
+|---|---|---|
+| PyInstaller | GPL-2.0 with the Bootloader Exception | build tool only; the exception explicitly permits bundling apps of any license — nothing GPL ships in the app's own code |
+| python-keyring | MIT | BYOK keys stored in the macOS Keychain |
+| pypdfium2 (+ pdfium) | BSD-3-Clause / Apache-2.0 | chosen over AGPL PyMuPDF on purpose (decision #12) |

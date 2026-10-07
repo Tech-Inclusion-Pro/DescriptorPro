@@ -14,10 +14,19 @@
   "build": {
     "appId": "pro.techinclusion.descriptorpro",
     "productName": "DescriptorPro",
-    "files": ["main.js", "preload.js"],
+    "files": [
+      "main.js",
+      "preload.js"
+    ],
     "mac": {
       "category": "public.app-category.education",
       "icon": "build/icon.icns"
-    }
+    },
+    "extraResources": [
+      {
+        "from": "../dist/describe-studio-service",
+        "to": "service"
+      }
+    ]
   }
 }
