@@ -13,13 +13,11 @@ import pytest
 
 
 class _QtBlocked:
-    def find_module(self, fullname, path=None):  # noqa: ANN001
+    # Must be the modern find_spec API: Python 3.12+ ignores find_module.
+    def find_spec(self, fullname, path=None, target=None):  # noqa: ANN001
         if fullname == "PyQt6" or fullname.startswith("PyQt6."):
-            return self
+            raise ImportError(f"PyQt6 is forbidden inside core.engine (tried {fullname})")
         return None
-
-    def load_module(self, fullname):  # noqa: ANN001
-        raise ImportError(f"PyQt6 is forbidden inside core.engine (tried {fullname})")
 
 
 def _engine_modules() -> list[str]:
@@ -34,8 +32,17 @@ def _engine_modules() -> list[str]:
 def test_engine_imports_without_qt(monkeypatch: pytest.MonkeyPatch) -> None:
     blocker = _QtBlocked()
     monkeypatch.setattr(sys, "meta_path", [blocker, *sys.meta_path])
+    # Purge every project module, not just core.engine: a transitive import
+    # (engine -> core.x -> PyQt6) is invisible if core.x is already cached.
     for name in list(sys.modules):
-        if name == "PyQt6" or name.startswith("PyQt6.") or name.startswith("core.engine"):
+        if (
+            name == "PyQt6"
+            or name.startswith("PyQt6.")
+            or name == "core"
+            or name.startswith("core.")
+            or name == "utils"
+            or name.startswith("utils.")
+        ):
             monkeypatch.delitem(sys.modules, name, raising=False)
 
     for module_name in _engine_modules():
