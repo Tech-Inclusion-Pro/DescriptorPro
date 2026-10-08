@@ -121,6 +121,11 @@ function createWindow() {
     },
   })
   const url = DEV ? 'http://localhost:5173' : `http://127.0.0.1:${bootstrap.port}/ui/`
+  // A file dropped on the window must never navigate away from the UI
+  // (Electron's default is to open the dropped file as a page).
+  mainWindow.webContents.on('will-navigate', (event, target) => {
+    if (target !== url) event.preventDefault()
+  })
   mainWindow.loadURL(url)
 }
 

@@ -6,6 +6,7 @@ import { useProjectStore } from '../stores/project'
 import { useSessionStore } from '../stores/session'
 
 const ACCEPT = '.mp4,.mov,.mkv,.avi,.mp3,.wav,.m4a,.ogg'
+const IMAGE_ACCEPT = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.tif', '.tiff', '.pdf']
 
 export function MediaPane({ hidden, onDrafted }: { hidden: boolean; onDrafted: () => void }) {
   useI18n()
@@ -31,26 +32,38 @@ export function MediaPane({ hidden, onDrafted }: { hidden: boolean; onDrafted: (
   }
 
   return (
-    <section className="pane" role="tabpanel" id="pane-media" aria-labelledby="tab-media" tabIndex={0} hidden={hidden}>
+    <section
+      className="pane"
+      role="tabpanel"
+      id="pane-media"
+      aria-labelledby="tab-media"
+      tabIndex={0}
+      hidden={hidden}
+      onDragOver={(e) => {
+        e.preventDefault()
+        setDragOver(true)
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(false)
+      }}
+      onDrop={(e) => {
+        e.preventDefault()
+        setDragOver(false)
+        const files = Array.from(e.dataTransfer.files ?? [])
+        if (!files.length) return
+        const images = files.filter((f) => IMAGE_ACCEPT.some((ext) => f.name.toLowerCase().endsWith(ext)))
+        if (images.length) {
+          void analysis.uploadImageBatch(images)
+          return
+        }
+        start(files[0])
+      }}
+    >
       <h2>{t('media.title')}</h2>
       <p className="lede">{t('media.lede')}</p>
       <div className="cols">
         <div>
-          <div
-            className="drop"
-            style={dragOver ? { borderColor: 'var(--focus)' } : undefined}
-            onDragOver={(e) => {
-              e.preventDefault()
-              setDragOver(true)
-            }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={(e) => {
-              e.preventDefault()
-              setDragOver(false)
-              const file = e.dataTransfer.files?.[0]
-              if (file) start(file)
-            }}
-          >
+          <div className="drop" style={dragOver ? { borderColor: 'var(--focus)' } : undefined}>
             <p>
               <strong>{t('media.drop')}</strong>
             </p>
