@@ -65,7 +65,7 @@
   "media.model": "Speech model",
   "media.model_hint": "Larger models hear better and run slower. The first use of a model downloads it from its official source.",
   "media.where": "Where processing happens",
-  "steps.state.phase2": "Phase 2",
+  "steps.state.needed": "need description",
   "steps.state.approved": "approved",
   "steps.state.ready": "Ready",
   "review.empty": "No project yet. Add media first; drafted captions appear here for review.",

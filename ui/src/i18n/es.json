@@ -65,7 +65,7 @@
   "media.model": "Modelo de voz",
   "media.model_hint": "Los modelos más grandes escuchan mejor y tardan más. El primer uso de un modelo lo descarga de su fuente oficial.",
   "media.where": "Dónde ocurre el procesamiento",
-  "steps.state.phase2": "Fase 2",
+  "steps.state.needed": "necesitan descripción",
   "steps.state.approved": "aprobadas",
   "steps.state.ready": "Listo",
   "review.empty": "Aún no hay proyecto. Agregue medios primero; los subtítulos redactados aparecen aquí para revisar.",

@@ -21,11 +21,11 @@ interface Question {
   options?: string[]
 }
 
-function runJob(projectId: string, type: string): Promise<void> {
+function runJob(projectId: string, type: string, params: Record<string, unknown> = {}): Promise<void> {
   return new Promise((resolve, reject) => {
     void useJobsStore
       .getState()
-      .run(projectId, type, {})
+      .run(projectId, type, params)
       .then((jobId) => {
         const poll = window.setInterval(() => {
           const job = useJobsStore.getState().jobs[jobId]
@@ -67,6 +67,7 @@ interface AnalysisState {
   runNeedCheck: () => Promise<void>
   setDecision: (segmentId: string, value: 'describe' | 'skip' | 'undecided') => Promise<void>
   loadDescriptions: () => Promise<void>
+  setAdStyle: (style: string) => void
   runDescribe: () => Promise<void>
   renderDescribed: () => Promise<string | null>
   exportPlayer: () => Promise<{ folder: string; embed_code: string } | null>
@@ -172,12 +173,16 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
     set({ descriptions: data.cues, adStyle: data.ad_style, addedRunningTime: data.added_running_time })
   },
 
+  setAdStyle(style) {
+    set({ adStyle: style })
+  },
+
   async runDescribe() {
     const { projectId } = useProjectStore.getState()
     if (!projectId) return
     set({ busy: true, error: null, phase: 'describe' })
     try {
-      await runJob(projectId, 'describe')
+      await runJob(projectId, 'describe', { ad_style: get().adStyle })
       await get().loadDescriptions()
       set({ busy: false, phase: 'idle' })
     } catch (err) {

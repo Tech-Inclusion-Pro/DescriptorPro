@@ -13,6 +13,7 @@ import { LivePane } from './panes/LivePane'
 import { StandardsPane } from './panes/StandardsPane'
 import { useSessionStore } from './stores/session'
 import { useProjectStore } from './stores/project'
+import { useAnalysisStore } from './stores/analysis'
 import { api } from './api/client'
 import { t, useI18n } from './i18n'
 
@@ -41,6 +42,11 @@ export default function App() {
       .catch(() => {})
   }, [connected, project.reviewerName])
 
+  const intent = useAnalysisStore((s) => s.intent)
+  const report = useAnalysisStore((s) => s.report)
+  const checked = report
+    ? report.tally.needed + report.tally.not_needed + report.tally.uncertain
+    : 0
   const approved = project.cues.filter((c) => c.status === 'approved').length
   const steps: StepInfo[] = [
     {
@@ -48,8 +54,18 @@ export default function App() {
       label: t('steps.media'),
       state: project.projectId ? t('steps.state.done') : t('steps.state.not_started'),
     },
-    { id: 'intent', label: t('steps.intent'), state: t('steps.state.phase2') },
-    { id: 'need', label: t('steps.need'), state: t('steps.state.phase2') },
+    {
+      id: 'intent',
+      label: t('steps.intent'),
+      state: intent ? t('steps.state.done') : t('steps.state.not_started'),
+    },
+    {
+      id: 'need',
+      label: t('steps.need'),
+      state: checked
+        ? `${report!.tally.needed} ${t('steps.state.needed')}`
+        : t('steps.state.not_started'),
+    },
     {
       id: 'review',
       label: t('steps.review'),

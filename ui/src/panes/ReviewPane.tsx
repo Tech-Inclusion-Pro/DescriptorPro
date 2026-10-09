@@ -117,6 +117,22 @@ function DescriptionSection({ onPlay }: { onPlay: (start: number) => void }) {
   return (
     <section aria-labelledby="desc-review-h" style={{ marginBlockStart: '1.5rem' }}>
       <h3 id="desc-review-h">Audio descriptions</h3>
+      <div className="field" style={{ maxInlineSize: '24rem' }}>
+        <label htmlFor="ad-style">Description style</label>
+        <select
+          id="ad-style"
+          value={analysis.adStyle}
+          onChange={(e) => analysis.setAdStyle(e.target.value)}
+          disabled={analysis.busy}
+        >
+          <option value="standard">Standard — fit in natural pauses</option>
+          <option value="extended_when_needed">Extended when needed — pause the video if a description does not fit</option>
+          <option value="extended_before_content">Extended before content — describe each part before it plays</option>
+        </select>
+        <p className="hint">
+          Extended descriptions pause the video while the narration plays, so nothing is cut short.
+        </p>
+      </div>
       <div className="row">
         <button
           type="button"

@@ -372,7 +372,11 @@ async def describe_job(ctx, model_manager) -> dict:
         settings = load_settings()
         client = LlmClient()
         intent = project.get("intent") or {}
-        ad_style = project.get("ad_style") or "standard"
+        requested_style = (ctx.job.params or {}).get("ad_style")
+        if requested_style in ("standard", "extended_when_needed", "extended_before_content"):
+            ad_style = requested_style
+        else:
+            ad_style = project.get("ad_style") or "standard"
         language = (intent.get("languages") or ["en"])[0]
         cues = project.get("caption_cues", [])
         duration = float(project.get("source", {}).get("duration") or 0.0)
@@ -554,10 +558,15 @@ async def render_described_job(ctx, model_manager) -> dict:
 
         models_dir = app_support_dir() / "models" / "kokoro"
         wavs = []
+        import hashlib
+
         async with model_manager.use("kokoro", "kokoro-v1.0"):
             for i, cue in enumerate(cues):
                 ctx.cancel.raise_if_cancelled()
-                wav = narr_dir / f"{cue['id']}.wav"
+                # The text hash keys the clip, so an edited or re-drafted
+                # description never reuses a stale recording.
+                digest = hashlib.sha256(cue["text"].encode("utf-8")).hexdigest()[:12]
+                wav = narr_dir / f"{cue['id']}-{digest}.wav"
                 if not wav.exists():
                     measured = await asyncio.to_thread(
                         synthesize, cue["text"], wav, models_dir, progress=ctx

@@ -69,7 +69,8 @@ def find_deictic(transcript: str, config: NeedCheckConfig | None = None) -> list
     folded = _fold(transcript)
     hits = []
     for phrase in config.deictic_en + config.deictic_es:
-        if _fold(phrase) in folded:
+        # Whole words only: "asi" must not match inside "basics".
+        if re.search(rf"\b{re.escape(_fold(phrase))}\b", folded):
             hits.append(phrase)
     return hits
 

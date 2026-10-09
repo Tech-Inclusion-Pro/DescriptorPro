@@ -19,6 +19,8 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+from core.engine.extract_audio import _find_ffmpeg
+
 
 def plan_render(description_cues: list[dict], duration: float) -> dict:
     """Pure placement math.
@@ -125,9 +127,16 @@ def render_described_video(
     else:
         lines.append("[aprog]loudnorm=I=-19:TP=-2:LRA=11[aout]")
 
+    ffmpeg_bin = _find_ffmpeg()
+    if not ffmpeg_bin:
+        raise FileNotFoundError(
+            "FFmpeg is not installed. Please install FFmpeg and add it to your PATH.\n"
+            "Visit ffmpeg.org for instructions, or run: brew install ffmpeg"
+        )
+
     filtergraph = "".join(lines)
     cmd = [
-        "ffmpeg", "-y", "-loglevel", "error",
+        ffmpeg_bin, "-y", "-loglevel", "error",
         *inputs,
         "-filter_complex", filtergraph,
         "-map", "[vprog]", "-map", "[aout]",
